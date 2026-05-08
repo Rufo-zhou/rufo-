@@ -131,8 +131,7 @@ def save_text(path: Path, text: str) -> None:
 
 
 def compact_multiline(text: str) -> str:
-    return "
-".join(
+    return "\n".join(
         line.strip()
         for line in textwrap.dedent(text).strip().splitlines()
         if line.strip()
@@ -414,12 +413,7 @@ class ImageRenderer:
         render_instruction_path = output_dir / "render_instruction.txt"
         save_text(
             render_instruction_path,
-            f"FINAL PROMPT:
-{prompt}
-
-NEGATIVE PROMPT:
-{negative_prompt}
-",
+            f"FINAL PROMPT:\n{prompt}\n\nNEGATIVE PROMPT:\n{negative_prompt}\n",
         )
         return {
             "status": "placeholder_saved",
@@ -533,16 +527,13 @@ def main() -> int:
         orchestrator = PosterAgentOrchestrator(llm)
         result = orchestrator.run(project)
 
-        print("
-=== Multi-Agent Poster Pipeline Finished ===")
+        print("\n=== Multi-Agent Poster Pipeline Finished ===")
         print(f"QA status: {result.qa_report.output['status']}")
         print(f"QA score: {result.qa_report.output['score']}")
-        print("
-Saved files:")
+        print("\nSaved files:")
         for file in result.saved_files:
             print(f"- {file}")
-        print("
-Final prompt saved to render_instruction.txt")
+        print("\nFinal prompt saved to render_instruction.txt")
         return 0
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
