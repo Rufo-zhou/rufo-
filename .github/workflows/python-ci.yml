@@ -31,3 +31,18 @@ jobs:
           test -f outputs/video-ci/video_workflow_result.json
           test -f outputs/video-ci/storyboard_prompts.md
           test -f outputs/video-ci/character_three_view_prompts.md
+          test -f outputs/video-ci/production_brief.md
+
+      - name: Run video prompt quality modes
+        run: |
+          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode fast --target-model runway --max-scenes 2 --out outputs/video-fast-ci
+          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model sora --aspect-ratio 9:16 --out outputs/video-high-ci
+          test -f outputs/video-high-ci/production_brief.md
+
+      - name: Validate video prompt safeguards
+        run: |
+          printf '第1场：内景 房间 夜\n小雅：秘密在桌上。\nsk-proj-1234567890abcdef\n' > secret-script.txt
+          python3 script_to_video_prompt_workflow.py --script secret-script.txt --out outputs/video-secret-ci
+          grep -q '"status": "needs_revision"' outputs/video-secret-ci/05_qa_report.json
+          printf 'hello' > bad-script.exe
+          ! python3 script_to_video_prompt_workflow.py --script bad-script.exe --out outputs/video-bad-ci
