@@ -57,31 +57,18 @@ outputs/
   render_instruction.txt
 ```
 
-## 可选：使用 OpenAI API
+更多参数、OpenAI API 模式和输出说明请看 [docs/usage.md](docs/usage.md)。
 
-默认模式不需要网络和 API key。如果你想让 Agent 使用 OpenAI 生成更灵活的 JSON 输出，可以安装 OpenAI Python SDK 并设置环境变量：
+## 文档导航
 
-```bash
-python3 -m pip install openai
-export OPENAI_API_KEY="your_key"
-python3 multi_agent_poster_system.py \
-  --image ./portrait.png \
-  --theme "校园剧院独唱" \
-  --out ./outputs \
-  --use-openai
-```
-
-不要把 API key 提交到 GitHub。
-
-## 参数说明
-
-| 参数 | 必填 | 说明 |
-| --- | --- | --- |
-| `--image` | 是 | 输入人物肖像路径，支持 JPG、PNG、WebP |
-| `--theme` | 是 | 创意主题，例如 `校园剧院独唱` |
-| `--out` | 否 | 输出目录，默认 `./outputs` |
-| `--use-openai` | 否 | 开启 OpenAI API 模式 |
-| `--model` | 否 | OpenAI 模型名，默认 `gpt-4o-mini` |
+| 分类 | 文档 |
+| --- | --- |
+| 文档总览 | [docs/README.md](docs/README.md) |
+| 使用说明 | [docs/usage.md](docs/usage.md) |
+| 架构说明 | [docs/architecture.md](docs/architecture.md) |
+| 开发流程 | [docs/development.md](docs/development.md) |
+| 安全与隐私 | [docs/security.md](docs/security.md) |
+| 路线图 | [docs/roadmap.md](docs/roadmap.md) |
 
 ## 项目结构
 
@@ -91,6 +78,13 @@ python3 multi_agent_poster_system.py \
 │   ├── ISSUE_TEMPLATE/
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows/python-ci.yml
+├── docs/
+│   ├── README.md
+│   ├── architecture.md
+│   ├── development.md
+│   ├── roadmap.md
+│   ├── security.md
+│   └── usage.md
 ├── multi_agent_poster_system.py
 ├── README.md
 ├── CONTRIBUTING.md
@@ -100,24 +94,9 @@ python3 multi_agent_poster_system.py \
 └── .gitignore
 ```
 
-## 安全与隐私
-
-- 输入图片只在本地按路径读取，默认不会上传到任何服务。
-- `--use-openai` 开启后，文本上下文会发送给 OpenAI API；当前原型不会把图片二进制上传给 OpenAI。
-- 项目会拒绝扩展名伪装的假图片文件。
-- 请不要提交真实肖像、API key、输出目录、临时测试图片或 `.env` 文件。
-
 ## 贡献
 
-欢迎提交 issue、改进提示词结构、补充测试、优化 Agent 流程或接入真实图像渲染器。请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-## 路线图
-
-- 增加单元测试
-- 增加标准 `requirements.txt` 或 `pyproject.toml`
-- 增加模块化包结构，方便未来扩展为正式 CLI
-- 接入真实图片生成 API
-- 增加更多主题模板和输出格式
+欢迎提交 issue、改进提示词结构、补充测试、优化 Agent 流程或接入真实图像渲染器。请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [docs/development.md](docs/development.md)。
 
 ## 许可证
 
