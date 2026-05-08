@@ -14,22 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Resolve script path
-        run: |
-          if [ -f multi_agent_poster_system.py ]; then
-            echo "SCRIPT_PATH=multi_agent_poster_system.py" >> "$GITHUB_ENV"
-          elif [ -f 'multi_agent_poster_system (1).py' ]; then
-            echo "SCRIPT_PATH=multi_agent_poster_system (1).py" >> "$GITHUB_ENV"
-          else
-            echo "No poster system script found" >&2
-            exit 1
-          fi
-
       - name: Compile Python script
-        run: python3 -m py_compile "$SCRIPT_PATH"
+        run: python3 -m py_compile multi_agent_poster_system.py
 
       - name: Run smoke test
         run: |
           printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' | base64 -d > ci.png
-          python3 "$SCRIPT_PATH" --image ci.png --theme ci-smoke --out outputs/ci
+          python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --out outputs/ci
           test -f outputs/ci/pipeline_result.json
