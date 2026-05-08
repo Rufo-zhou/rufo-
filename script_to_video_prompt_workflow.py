@@ -75,6 +75,94 @@ STOP_CHARACTER_NAMES = {
     "ext",
 }
 
+NARRATOR_NAMES = {"旁白", "narrator", "voiceover", "voice over", "v.o.", "vo"}
+SUPPORTED_TARGET_MODELS = {"general", "sora", "runway", "kling", "pika", "luma"}
+SUPPORTED_QUALITY_MODES = {"fast", "balanced", "high"}
+
+MODEL_PROFILES = {
+    "general": {
+        "label": "General AI video model",
+        "prompt_hint": "balanced prompt structure for broad AI video model compatibility",
+        "motion_bias": "clear, physically plausible motion with stable continuity",
+    },
+    "sora": {
+        "label": "Sora",
+        "prompt_hint": "emphasize coherent world state, temporal continuity, natural camera movement",
+        "motion_bias": "longer continuous motion, consistent physics, believable character behavior",
+    },
+    "runway": {
+        "label": "Runway",
+        "prompt_hint": "keep prompt concise, visual-first, with explicit camera and lighting direction",
+        "motion_bias": "controlled camera movement, clean subject action, strong composition",
+    },
+    "kling": {
+        "label": "Kling",
+        "prompt_hint": "emphasize dynamic action, body movement, environment interaction and shot rhythm",
+        "motion_bias": "expressive movement, readable action beats, strong subject-background relation",
+    },
+    "pika": {
+        "label": "Pika",
+        "prompt_hint": "use short vivid descriptions, strong visual hook, simple motion instruction",
+        "motion_bias": "compact expressive motion, clear subject, minimal scene clutter",
+    },
+    "luma": {
+        "label": "Luma",
+        "prompt_hint": "emphasize cinematic realism, spatial depth, lens language and lighting continuity",
+        "motion_bias": "smooth camera path, natural depth, consistent scene geometry",
+    },
+}
+
+QUALITY_PROFILES = {
+    "fast": {
+        "label": "fast draft",
+        "description": "每场只生成关键镜头，适合快速试方向。",
+        "shot_types": ["key"],
+    },
+    "balanced": {
+        "label": "balanced production",
+        "description": "每场生成建立、动作、情绪三类镜头，适合默认制作。",
+        "shot_types": ["establishing", "action", "emotion"],
+    },
+    "high": {
+        "label": "high quality package",
+        "description": "每场生成更完整的镜头包，适合精修和交付。",
+        "shot_types": ["establishing", "action", "detail", "emotion", "transition"],
+    },
+}
+
+SHOT_LIBRARY = {
+    "key": {
+        "duration": 6,
+        "camera": "single decisive cinematic shot, clear subject, readable story beat",
+        "purpose": "快速抓住本场最关键的视觉动作和情绪。",
+    },
+    "establishing": {
+        "duration": 4,
+        "camera": "wide establishing shot, slow dolly in, clear geography",
+        "purpose": "建立空间、时间、气氛和人物站位。",
+    },
+    "action": {
+        "duration": 6,
+        "camera": "medium shot, motivated camera movement, readable body action",
+        "purpose": "表现动作、关系和剧情推进。",
+    },
+    "detail": {
+        "duration": 3,
+        "camera": "insert shot, shallow depth of field, precise prop or gesture focus",
+        "purpose": "补充道具、手部动作或关键视觉线索。",
+    },
+    "emotion": {
+        "duration": 4,
+        "camera": "close-up, subtle handheld breathing, expressive eyes",
+        "purpose": "捕捉情绪变化和人物反应。",
+    },
+    "transition": {
+        "duration": 4,
+        "camera": "transition shot, motivated movement, scene-to-scene visual bridge",
+        "purpose": "为下一场提供剪辑衔接和节奏缓冲。",
+    },
+}
+
 
 # =========================
 # Data Models
@@ -87,6 +175,11 @@ class ProjectInput:
     title: str
     output_dir: str
     language: str = "zh-CN"
+    target_model: str = "general"
+    quality_mode: str = "balanced"
+    aspect_ratio: str = "16:9"
+    max_scenes: int = MAX_SCENES
+    max_characters: int = MAX_CHARACTERS
 
 
 @dataclass
@@ -213,6 +306,38 @@ def validate_title(title: Optional[str], script_path: Path) -> str:
     return script_path.stem[:MAX_TITLE_CHARS] or "Untitled Script"
 
 
+def validate_target_model(target_model: str) -> str:
+    normalized = target_model.strip().lower()
+    if normalized not in SUPPORTED_TARGET_MODELS:
+        allowed = ", ".join(sorted(SUPPORTED_TARGET_MODELS))
+        raise ValueError(f"Unsupported target model: {target_model}. Allowed: {allowed}")
+    return normalized
+
+
+def validate_quality_mode(quality_mode: str) -> str:
+    normalized = quality_mode.strip().lower()
+    if normalized not in SUPPORTED_QUALITY_MODES:
+        allowed = ", ".join(sorted(SUPPORTED_QUALITY_MODES))
+        raise ValueError(f"Unsupported quality mode: {quality_mode}. Allowed: {allowed}")
+    return normalized
+
+
+def validate_aspect_ratio(aspect_ratio: str) -> str:
+    cleaned = aspect_ratio.strip()
+    if not re.fullmatch(r"\d{1,2}:\d{1,2}", cleaned):
+        raise ValueError("Aspect ratio must look like 16:9, 9:16, 1:1, or 2:3.")
+    width, height = (int(part) for part in cleaned.split(":"))
+    if width <= 0 or height <= 0:
+        raise ValueError("Aspect ratio values must be positive.")
+    return cleaned
+
+
+def validate_limit(value: int, *, name: str, minimum: int, maximum: int) -> int:
+    if value < minimum or value > maximum:
+        raise ValueError(f"{name} must be between {minimum} and {maximum}.")
+    return value
+
+
 def contains_sensitive_token(text: str) -> bool:
     return API_KEY_PATTERN.search(text) is not None
 
@@ -282,7 +407,7 @@ def detect_scene_heading(line: str) -> Optional[str]:
     return None
 
 
-def split_scene_blocks(script_text: str) -> List[Dict[str, Any]]:
+def split_scene_blocks(script_text: str, max_scenes: int = MAX_SCENES) -> List[Dict[str, Any]]:
     lines = script_text.splitlines()
     scenes: List[Dict[str, Any]] = []
     current_title = "Opening"
@@ -308,10 +433,10 @@ def split_scene_blocks(script_text: str) -> List[Dict[str, Any]]:
             scenes.append({"title": current_title, "text": current_text})
 
     if len(scenes) <= 1 and len(script_text) > 1400:
-        scenes = split_by_paragraph_chunks(script_text)
+        scenes = split_by_paragraph_chunks(script_text, max_scenes=max_scenes)
 
     normalized = []
-    for index, scene in enumerate(scenes[:MAX_SCENES], start=1):
+    for index, scene in enumerate(scenes[:max_scenes], start=1):
         text = scene["text"].strip()
         if not text:
             continue
@@ -348,7 +473,7 @@ def is_metadata_block(text: str) -> bool:
     return metadata_count == len(lines)
 
 
-def split_by_paragraph_chunks(script_text: str) -> List[Dict[str, str]]:
+def split_by_paragraph_chunks(script_text: str, max_scenes: int = MAX_SCENES) -> List[Dict[str, str]]:
     paragraphs = [para.strip() for para in re.split(r"\n\s*\n", script_text) if para.strip()]
     chunks: List[Dict[str, str]] = []
     current: List[str] = []
@@ -362,7 +487,7 @@ def split_by_paragraph_chunks(script_text: str) -> List[Dict[str, str]]:
         current_len += len(para)
     if current:
         chunks.append({"title": f"Scene {len(chunks) + 1}", "text": "\n\n".join(current)})
-    return chunks[:MAX_SCENES]
+    return chunks[:max_scenes]
 
 
 def infer_location(title: str, text: str) -> str:
@@ -462,7 +587,15 @@ def extract_declared_characters(script_text: str) -> List[str]:
     return declared
 
 
-def build_character_profiles(script_text: str, scenes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def is_narrator_name(name: str) -> bool:
+    return normalize_name(name).lower() in NARRATOR_NAMES
+
+
+def build_character_profiles(
+    script_text: str,
+    scenes: List[Dict[str, Any]],
+    max_characters: int = MAX_CHARACTERS,
+) -> List[Dict[str, Any]]:
     speakers = extract_speakers(script_text)
     declared = extract_declared_characters(script_text)
     for name in declared:
@@ -474,34 +607,58 @@ def build_character_profiles(script_text: str, scenes: List[Dict[str, Any]]) -> 
     scene_text_by_id = {scene["scene_id"]: scene["text_excerpt"] for scene in scenes}
     profiles: List[Dict[str, Any]] = []
     sorted_names = sorted(speakers, key=lambda item: (-speakers[item]["dialogue_count"], item))
-    for index, name in enumerate(sorted_names[:MAX_CHARACTERS], start=1):
+    for index, name in enumerate(sorted_names[:max_characters], start=1):
         appears_in = [
             scene_id
             for scene_id, text in scene_text_by_id.items()
             if name in text or speakers[name]["dialogue_count"] == 0 and index == 1
         ]
         role = "protagonist" if index == 1 else "supporting_character"
-        if name in {"旁白", "Narrator", "narrator"}:
+        if is_narrator_name(name):
             role = "narrator"
+        is_voice_only = role == "narrator"
         profiles.append(
             {
                 "character_id": f"C{index:02d}",
                 "name": name,
                 "role": role,
+                "visual_role": "voice_only" if is_voice_only else "visible_character",
                 "appears_in_scenes": appears_in[:MAX_SCENES],
                 "dialogue_count": speakers[name]["dialogue_count"],
                 "sample_dialogue": speakers[name]["sample_dialogue"],
                 "visual_identity": build_visual_identity(name, role, index),
-                "continuity_notes": [
-                    "所有镜头保持同一五官比例、发型轮廓、服装主色和年龄感",
-                    "不要在不同分镜中改变角色年龄、发色、脸型或标志性配饰",
-                    "三视图、分镜和视频提示词使用同一个 character_id 绑定角色",
-                ],
-                "three_view_prompt": build_three_view_prompt(name, role, index),
-                "negative_prompt": "different face, inconsistent identity, extra limbs, distorted hands, wrong age, random costume, text watermark, logo",
+                "continuity_notes": build_character_continuity_notes(is_voice_only),
+                "three_view_prompt": "" if is_voice_only else build_three_view_prompt(name, role, index),
+                "voice_prompt": build_voice_prompt(name) if is_voice_only else "",
+                "negative_prompt": ""
+                if is_voice_only
+                else "different face, inconsistent identity, extra limbs, distorted hands, wrong age, random costume, text watermark, logo",
             }
         )
     return profiles
+
+
+def build_character_continuity_notes(is_voice_only: bool) -> List[str]:
+    if is_voice_only:
+        return [
+            "旁白或画外音默认不生成三视图，避免把声音角色误做成可视人物。",
+            "如旁白需要出镜，请在剧本中给出明确动作、外貌或出场描述。",
+        ]
+    return [
+        "所有镜头保持同一五官比例、发型轮廓、服装主色和年龄感",
+        "不要在不同分镜中改变角色年龄、发色、脸型或标志性配饰",
+        "三视图、分镜和视频提示词使用同一个 character_id 绑定角色",
+    ]
+
+
+def build_voice_prompt(name: str) -> str:
+    return compact_text(
+        f"""
+        Voice-over reference for {name}: calm cinematic narration, clear emotion, natural pacing,
+        no visible body required, keep voice tone consistent across scenes.
+        """,
+        400,
+    )
 
 
 def build_visual_identity(name: str, role: str, index: int) -> Dict[str, str]:
@@ -531,13 +688,14 @@ def build_three_view_prompt(name: str, role: str, index: int) -> str:
 
 def scene_characters(scene: Dict[str, Any], profiles: List[Dict[str, Any]]) -> List[Dict[str, str]]:
     text = scene["text_excerpt"]
+    visible_profiles = [profile for profile in profiles if profile.get("visual_role") != "voice_only"]
     selected = [
         {"character_id": profile["character_id"], "name": profile["name"]}
-        for profile in profiles
+        for profile in visible_profiles
         if profile["name"] in text
     ]
-    if not selected and profiles:
-        selected = [{"character_id": profiles[0]["character_id"], "name": profiles[0]["name"]}]
+    if not selected and visible_profiles:
+        selected = [{"character_id": visible_profiles[0]["character_id"], "name": visible_profiles[0]["name"]}]
     return selected[:4]
 
 
@@ -548,22 +706,24 @@ def build_shot_prompt(
     tone: List[str],
     shot_type: str,
     shot_index: int,
+    target_model: str,
+    quality_mode: str,
+    aspect_ratio: str,
 ) -> Dict[str, Any]:
     character_names = ", ".join(f"{char['character_id']} {char['name']}" for char in characters) or "no visible character"
     tone_text = ", ".join(tone)
-    camera_by_type = {
-        "establishing": "wide establishing shot, slow dolly in, clear geography",
-        "action": "medium shot, motivated camera movement, readable body action",
-        "emotion": "close-up, subtle handheld breathing, expressive eyes",
-    }
-    duration_by_type = {"establishing": 4, "action": 6, "emotion": 4}
+    model_profile = MODEL_PROFILES[target_model]
+    quality_profile = QUALITY_PROFILES[quality_mode]
+    shot_profile = SHOT_LIBRARY[shot_type]
     prompt = compact_text(
         f"""
-        AI video storyboard prompt, {genre}, tone {tone_text}.
+        AI video storyboard prompt for {model_profile['label']}, aspect ratio {aspect_ratio}, {genre}, tone {tone_text}.
         Scene {scene['scene_id']} {scene['title']}, location {scene['location']}, time {scene['time_of_day']}.
         Characters: {character_names}. Story beat: {scene['summary']}.
-        Shot type: {shot_type}. Camera: {camera_by_type[shot_type]}.
+        Shot type: {shot_type}. Purpose: {shot_profile['purpose']}. Camera: {shot_profile['camera']}.
         Lighting: cinematic natural light, coherent shadows, scene-matched color temperature.
+        Target model note: {model_profile['prompt_hint']}. Motion: {model_profile['motion_bias']}.
+        Quality mode: {quality_profile['label']} - {quality_profile['description']}
         Continuity: keep character identity, costume, props and screen direction consistent.
         Output: realistic cinematic video, high detail, no subtitles, no watermark, no logo.
         """,
@@ -573,22 +733,42 @@ def build_shot_prompt(
         "shot_id": f"{scene['scene_id']}-{shot_index:02d}",
         "scene_id": scene["scene_id"],
         "shot_type": shot_type,
-        "duration_seconds": duration_by_type[shot_type],
-        "camera": camera_by_type[shot_type],
+        "duration_seconds": shot_profile["duration"],
+        "camera": shot_profile["camera"],
+        "target_model": target_model,
+        "quality_mode": quality_mode,
+        "aspect_ratio": aspect_ratio,
         "characters": characters,
         "prompt": prompt,
         "negative_prompt": "low quality, flicker, inconsistent character, face morphing, extra fingers, broken hands, unreadable text, watermark, logo, random cuts, jumpy camera",
     }
 
 
-def build_storyboard(scenes: List[Dict[str, Any]], profiles: List[Dict[str, Any]], genre: str, tone: List[str]) -> List[Dict[str, Any]]:
+def build_storyboard(
+    scenes: List[Dict[str, Any]],
+    profiles: List[Dict[str, Any]],
+    genre: str,
+    tone: List[str],
+    target_model: str,
+    quality_mode: str,
+    aspect_ratio: str,
+) -> List[Dict[str, Any]]:
     storyboard = []
     for scene in scenes:
         characters = scene_characters(scene, profiles)
         shots = [
-            build_shot_prompt(scene, characters, genre, tone, "establishing", 1),
-            build_shot_prompt(scene, characters, genre, tone, "action", 2),
-            build_shot_prompt(scene, characters, genre, tone, "emotion", 3),
+            build_shot_prompt(
+                scene,
+                characters,
+                genre,
+                tone,
+                shot_type,
+                index,
+                target_model,
+                quality_mode,
+                aspect_ratio,
+            )
+            for index, shot_type in enumerate(QUALITY_PROFILES[quality_mode]["shot_types"], start=1)
         ]
         storyboard.append(
             {
@@ -641,24 +821,81 @@ def render_storyboard_markdown(storyboard: List[Dict[str, Any]]) -> str:
 def render_character_markdown(profiles: List[Dict[str, Any]]) -> str:
     lines = ["# Character Three-View Prompts", ""]
     for profile in profiles:
+        is_voice_only = profile.get("visual_role") == "voice_only"
         lines.extend(
             [
                 f"## {profile['character_id']} {profile['name']}",
                 "",
                 f"- Role: {profile['role']}",
+                f"- Visual role: {profile.get('visual_role', 'visible_character')}",
                 f"- Identity seed: {profile['visual_identity']['identity_seed']}",
                 f"- Appears in: {', '.join(profile['appears_in_scenes']) or 'not detected'}",
                 "",
-                "Three-view prompt:",
-                "",
-                profile["three_view_prompt"],
-                "",
-                "Negative prompt:",
-                "",
-                profile["negative_prompt"],
-                "",
             ]
         )
+        if is_voice_only:
+            lines.extend(["Voice prompt:", "", profile.get("voice_prompt", ""), ""])
+        else:
+            lines.extend(
+                [
+                    "Three-view prompt:",
+                    "",
+                    profile["three_view_prompt"],
+                    "",
+                    "Negative prompt:",
+                    "",
+                    profile["negative_prompt"],
+                    "",
+                ]
+            )
+    return "\n".join(lines).strip() + "\n"
+
+
+def render_production_brief_markdown(
+    project: ProjectInput,
+    script_analysis: Dict[str, Any],
+    character_profiles: Dict[str, Any],
+    storyboard_prompts: Dict[str, Any],
+    video_package: Dict[str, Any],
+    qa_report: Dict[str, Any],
+) -> str:
+    style = video_package.get("global_style_bible", {})
+    source = video_package.get("source_summary", {})
+    lines = [
+        "# Video Prompt Production Brief",
+        "",
+        f"- Project: {project.title}",
+        f"- Target model: {style.get('target_model', project.target_model)}",
+        f"- Quality mode: {style.get('quality_mode', project.quality_mode)}",
+        f"- Aspect ratio: {style.get('aspect_ratio', project.aspect_ratio)}",
+        f"- Genre: {source.get('genre', script_analysis.get('genre', 'unknown'))}",
+        f"- Tone: {', '.join(source.get('tone', script_analysis.get('tone', [])))}",
+        f"- Scenes: {script_analysis.get('scene_count', 0)}",
+        f"- Characters: {character_profiles.get('character_count', 0)}",
+        f"- Visible character refs: {character_profiles.get('visual_character_count', 0)}",
+        f"- Shot prompts: {qa_report.get('shot_prompt_count', 0)}",
+        f"- QA status: {qa_report.get('status', 'unknown')} ({qa_report.get('score', 0)})",
+        "",
+        "## Model Guidance",
+        "",
+        f"- Prompt note: {style.get('target_model_profile', {}).get('prompt_hint', '')}",
+        f"- Motion bias: {style.get('target_model_profile', {}).get('motion_bias', '')}",
+        "",
+        "## Handoff Order",
+        "",
+    ]
+    lines.extend(f"- {step}" for step in video_package.get("handoff_order", []))
+    lines.extend(["", "## Quality Checklist", ""])
+    for check, passed in qa_report.get("checks", {}).items():
+        marker = "PASS" if passed else "REVIEW"
+        lines.append(f"- {marker}: {check}")
+    suggestions = qa_report.get("suggestions", [])
+    if suggestions:
+        lines.extend(["", "## Suggestions", ""])
+        lines.extend(f"- {suggestion}" for suggestion in suggestions)
+    lines.extend(["", "## Storyboard Index", ""])
+    for scene in storyboard_prompts.get("storyboard", []):
+        lines.append(f"- {scene['scene_id']} {scene['scene_title']}: {len(scene.get('shots', []))} shots")
     return "\n".join(lines).strip() + "\n"
 
 
@@ -681,7 +918,7 @@ class ScriptStructureAgent(BaseAgent):
     name = "ScriptStructureAgent"
 
     def run(self, project: ProjectInput, script_text: str) -> AgentResult:
-        scenes = split_scene_blocks(script_text)
+        scenes = split_scene_blocks(script_text, max_scenes=project.max_scenes)
         genre_tone = infer_genre_and_tone(script_text)
         fallback = {
             "title": project.title,
@@ -712,15 +949,18 @@ class ScriptStructureAgent(BaseAgent):
 class CharacterProfileAgent(BaseAgent):
     name = "CharacterProfileAgent"
 
-    def run(self, script_text: str, script_analysis: Dict[str, Any]) -> AgentResult:
-        profiles = build_character_profiles(script_text, script_analysis.get("scenes", []))
+    def run(self, script_text: str, script_analysis: Dict[str, Any], max_characters: int) -> AgentResult:
+        profiles = build_character_profiles(script_text, script_analysis.get("scenes", []), max_characters=max_characters)
+        visual_profiles = [profile for profile in profiles if profile.get("visual_role") != "voice_only"]
         output = {
             "character_count": len(profiles),
+            "visual_character_count": len(visual_profiles),
             "characters": profiles,
             "three_view_usage": [
                 "先用 three_view_prompt 生成角色三视图或角色设定图",
                 "将 character_id 与分镜 prompt 一起使用，增强视频模型的人物一致性",
                 "同一角色在所有镜头中保持 visual_identity 字段不变",
+                "旁白等 voice_only 角色默认只生成声音提示词，不生成三视图",
             ],
         }
         return self.result(output)
@@ -729,7 +969,7 @@ class CharacterProfileAgent(BaseAgent):
 class StoryboardPromptAgent(BaseAgent):
     name = "StoryboardPromptAgent"
 
-    def run(self, script_analysis: Dict[str, Any], character_profiles: Dict[str, Any]) -> AgentResult:
+    def run(self, project: ProjectInput, script_analysis: Dict[str, Any], character_profiles: Dict[str, Any]) -> AgentResult:
         scenes = script_analysis.get("scenes", [])
         characters = character_profiles.get("characters", [])
         storyboard = build_storyboard(
@@ -737,9 +977,15 @@ class StoryboardPromptAgent(BaseAgent):
             profiles=characters,
             genre=script_analysis.get("genre", "剧情短片"),
             tone=script_analysis.get("tone", ["电影感"]),
+            target_model=project.target_model,
+            quality_mode=project.quality_mode,
+            aspect_ratio=project.aspect_ratio,
         )
         output = {
             "storyboard_count": len(storyboard),
+            "target_model": project.target_model,
+            "quality_mode": project.quality_mode,
+            "aspect_ratio": project.aspect_ratio,
             "target_models": ["Sora", "Runway", "Kling", "Pika", "Luma", "可兼容其他 AI 视频模型"],
             "storyboard": storyboard,
         }
@@ -756,11 +1002,29 @@ class VideoPackageAgent(BaseAgent):
         character_profiles: Dict[str, Any],
         storyboard_prompts: Dict[str, Any],
     ) -> AgentResult:
+        visible_characters = [
+            character
+            for character in character_profiles.get("characters", [])
+            if character.get("visual_role") != "voice_only"
+        ]
+        voice_roles = [
+            {
+                "character_id": character["character_id"],
+                "name": character["name"],
+                "voice_prompt": character.get("voice_prompt", ""),
+            }
+            for character in character_profiles.get("characters", [])
+            if character.get("visual_role") == "voice_only"
+        ]
         output = {
             "project_title": project.title,
             "global_style_bible": {
                 "format": "cinematic short film storyboard prompt package",
-                "aspect_ratio": "16:9 by default, use 9:16 for vertical short video",
+                "target_model": project.target_model,
+                "target_model_profile": MODEL_PROFILES[project.target_model],
+                "quality_mode": project.quality_mode,
+                "quality_profile": QUALITY_PROFILES[project.quality_mode],
+                "aspect_ratio": project.aspect_ratio,
                 "visual_style": "realistic cinematic, coherent color palette, consistent production design",
                 "camera_language": "motivated movement, readable geography, no random cuts",
                 "continuity_rules": [
@@ -776,8 +1040,9 @@ class VideoPackageAgent(BaseAgent):
                     "three_view_prompt": character["three_view_prompt"],
                     "negative_prompt": character["negative_prompt"],
                 }
-                for character in character_profiles.get("characters", [])
+                for character in visible_characters
             ],
+            "voice_reference_prompts": voice_roles,
             "shot_prompts": [
                 shot
                 for scene in storyboard_prompts.get("storyboard", [])
@@ -796,8 +1061,12 @@ class VideoPackageAgent(BaseAgent):
             "source_summary": {
                 "scene_count": script_analysis.get("scene_count", 0),
                 "character_count": character_profiles.get("character_count", 0),
+                "visual_character_count": character_profiles.get("visual_character_count", 0),
                 "genre": script_analysis.get("genre", "unknown"),
                 "tone": script_analysis.get("tone", []),
+                "target_model": project.target_model,
+                "quality_mode": project.quality_mode,
+                "aspect_ratio": project.aspect_ratio,
             },
         }
         return self.result(output)
@@ -816,13 +1085,17 @@ class QualityAssuranceAgent(BaseAgent):
     ) -> AgentResult:
         shot_prompts = video_package.get("shot_prompts", [])
         character_refs = video_package.get("character_reference_prompts", [])
+        style_bible = video_package.get("global_style_bible", {})
         checks = {
             "has_scene_analysis": script_analysis.get("scene_count", 0) > 0,
             "has_character_profiles": character_profiles.get("character_count", 0) > 0,
+            "has_visible_character_refs": character_profiles.get("visual_character_count", 0) == len(character_refs),
             "has_three_view_prompts": all(ref.get("three_view_prompt") for ref in character_refs),
             "has_storyboard_prompts": len(shot_prompts) >= max(1, script_analysis.get("scene_count", 1)),
             "has_negative_prompts": all(shot.get("negative_prompt") for shot in shot_prompts),
-            "has_continuity_rules": bool(video_package.get("global_style_bible", {}).get("continuity_rules")),
+            "has_continuity_rules": bool(style_bible.get("continuity_rules")),
+            "has_target_model_profile": bool(style_bible.get("target_model_profile")),
+            "has_aspect_ratio": bool(style_bible.get("aspect_ratio")),
             "no_detected_secret_tokens": not contains_sensitive_token(script_text),
         }
         score = sum(1 for value in checks.values() if value) / len(checks)
@@ -888,12 +1161,12 @@ class VideoPromptWorkflow:
         save_json(path, asdict(script_analysis))
         saved_files.append(str(path))
 
-        character_profiles = self.character_agent.run(script_text, script_analysis.output)
+        character_profiles = self.character_agent.run(script_text, script_analysis.output, project.max_characters)
         path = output_dir / "02_character_profiles.json"
         save_json(path, asdict(character_profiles))
         saved_files.append(str(path))
 
-        storyboard_prompts = self.storyboard_agent.run(script_analysis.output, character_profiles.output)
+        storyboard_prompts = self.storyboard_agent.run(project, script_analysis.output, character_profiles.output)
         path = output_dir / "03_storyboard_prompts.json"
         save_json(path, asdict(storyboard_prompts))
         saved_files.append(str(path))
@@ -927,6 +1200,20 @@ class VideoPromptWorkflow:
         save_text(character_md, render_character_markdown(character_profiles.output["characters"]))
         saved_files.append(str(character_md))
 
+        production_brief_md = output_dir / "production_brief.md"
+        save_text(
+            production_brief_md,
+            render_production_brief_markdown(
+                project,
+                script_analysis.output,
+                character_profiles.output,
+                storyboard_prompts.output,
+                video_package.output,
+                qa_report.output,
+            ),
+        )
+        saved_files.append(str(production_brief_md))
+
         package_path = output_dir / "video_workflow_result.json"
         result = VideoPromptWorkflowResult(
             project=project,
@@ -954,6 +1241,21 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser.add_argument("--title", default=None, help="Project title. Defaults to script file name.")
     parser.add_argument("--out", default="./outputs/video", help="Output directory")
     parser.add_argument("--language", default="zh-CN", help="Output language hint")
+    parser.add_argument(
+        "--target-model",
+        choices=sorted(SUPPORTED_TARGET_MODELS),
+        default="general",
+        help="Prompt profile for a target video model",
+    )
+    parser.add_argument(
+        "--quality-mode",
+        choices=sorted(SUPPORTED_QUALITY_MODES),
+        default="balanced",
+        help="fast creates 1 shot per scene, balanced creates 3, high creates 5",
+    )
+    parser.add_argument("--aspect-ratio", default="16:9", help="Video aspect ratio, e.g. 16:9 or 9:16")
+    parser.add_argument("--max-scenes", type=int, default=MAX_SCENES, help="Maximum scenes to process")
+    parser.add_argument("--max-characters", type=int, default=MAX_CHARACTERS, help="Maximum characters to profile")
     parser.add_argument("--use-openai", action="store_true", help="Enable optional OpenAI JSON enhancement")
     parser.add_argument("--model", default="gpt-4o-mini", help="OpenAI model name")
     return parser.parse_args(argv)
@@ -970,6 +1272,11 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             title=validate_title(args.title, script_path),
             output_dir=str(output_dir),
             language=args.language,
+            target_model=validate_target_model(args.target_model),
+            quality_mode=validate_quality_mode(args.quality_mode),
+            aspect_ratio=validate_aspect_ratio(args.aspect_ratio),
+            max_scenes=validate_limit(args.max_scenes, name="max-scenes", minimum=1, maximum=MAX_SCENES),
+            max_characters=validate_limit(args.max_characters, name="max-characters", minimum=1, maximum=MAX_CHARACTERS),
         )
         workflow = VideoPromptWorkflow(LLMClient(use_openai=args.use_openai, model=args.model))
         result = workflow.run(project, script_text)
@@ -979,6 +1286,9 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         print(f"QA score: {result.qa_report.output['score']}")
         print(f"Scenes: {result.script_analysis.output.get('scene_count', 0)}")
         print(f"Characters: {result.character_profiles.output.get('character_count', 0)}")
+        print(f"Target model: {result.project.target_model}")
+        print(f"Quality mode: {result.project.quality_mode}")
+        print(f"Aspect ratio: {result.project.aspect_ratio}")
         print(f"Shot prompts: {result.qa_report.output.get('shot_prompt_count', 0)}")
         print("\nSaved files:")
         for file in result.saved_files:
