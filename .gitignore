@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+
+.env
+.env.*
+!.env.example
+
+outputs/
+ci.png
+ci-valid.png
+ci-sample.jpg
+fake.jpg
+
+.DS_Store
+.idea/
+.vscode/
