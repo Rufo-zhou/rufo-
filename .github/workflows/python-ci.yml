@@ -15,10 +15,19 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Compile Python script
-        run: python3 -m py_compile multi_agent_poster_system.py
+        run: |
+          python3 -m py_compile multi_agent_poster_system.py
+          python3 -m py_compile script_to_video_prompt_workflow.py
 
-      - name: Run smoke test
+      - name: Run poster smoke test
         run: |
           printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' | base64 -d > ci.png
           python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --out outputs/ci
           test -f outputs/ci/pipeline_result.json
+
+      - name: Run video prompt smoke test
+        run: |
+          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --out outputs/video-ci
+          test -f outputs/video-ci/video_workflow_result.json
+          test -f outputs/video-ci/storyboard_prompts.md
+          test -f outputs/video-ci/character_three_view_prompts.md
