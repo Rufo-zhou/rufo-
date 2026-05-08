@@ -91,6 +91,20 @@ def ensure_dir(path: str | Path) -> Path:
     return p
 
 
+def has_valid_image_signature(image_path: Path) -> bool:
+    with image_path.open("rb") as image_file:
+        header = image_file.read(16)
+
+    suffix = image_path.suffix.lower()
+    if suffix in {".jpg", ".jpeg"}:
+        return header.startswith(bytes.fromhex("ffd8ff"))
+    if suffix == ".png":
+        return header.startswith(bytes.fromhex("89504e470d0a1a0a"))
+    if suffix == ".webp":
+        return header[0:4] == b"RIFF" and header[8:12] == b"WEBP"
+    return False
+
+
 def validate_image_path(image_path: str | Path) -> Path:
     p = Path(image_path).expanduser().resolve()
     if not p.exists():
@@ -104,6 +118,8 @@ def validate_image_path(image_path: str | Path) -> Path:
         )
     if p.stat().st_size > MAX_IMAGE_BYTES:
         raise ValueError(f"Image is too large. Max size: {MAX_IMAGE_BYTES // 1024 // 1024}MB")
+    if not has_valid_image_signature(p):
+        raise ValueError("Image content does not match a supported image format.")
     return p
 
 
