@@ -22,6 +22,8 @@ python3 -m py_compile multi_agent_poster_system.py
 
 5. 提交 Pull Request，并说明你改了什么、为什么改、如何验证。
 
+更完整的开发说明请看 [docs/development.md](docs/development.md)。
+
 ## 提交建议
 
 - 保持改动聚焦，避免一次 PR 混入多个无关主题。
