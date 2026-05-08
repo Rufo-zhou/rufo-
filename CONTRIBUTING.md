@@ -17,7 +17,7 @@
 4. 在本地运行检查：
 
 ```bash
-python3 -m py_compile "multi_agent_poster_system (1).py"
+python3 -m py_compile multi_agent_poster_system.py
 ```
 
 5. 提交 Pull Request，并说明你改了什么、为什么改、如何验证。
