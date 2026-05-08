@@ -1,3 +1,4 @@
 name: Python CI
 "on": [push, pull_request, workflow_dispatch]
-jobs: {check: {runs-on: ubuntu-latest, steps: [{uses: actions/checkout@v4}, {run: "python3 -m py_compile 'multi_agent_poster_system (1).py'"}]}}
+permissions: {contents: read}
+jobs: {check: {runs-on: ubuntu-latest, steps: [{uses: actions/checkout@v6}, {run: "python3 -m py_compile 'multi_agent_poster_system (1).py'"}, {run: "printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' | base64 -d > ci.png && python3 'multi_agent_poster_system (1).py' --image ci.png --theme ci-smoke --out outputs/ci && test -f outputs/ci/pipeline_result.json"}]}}
