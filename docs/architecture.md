@@ -25,6 +25,7 @@ ProjectInput
   -> VideoPackageAgent
   -> QualityAssuranceAgent
   -> JSON files + storyboard_prompts.md + character_three_view_prompts.md
+  -> production_brief.md
 ```
 
 ## 核心模块
@@ -45,6 +46,7 @@ ProjectInput
 | `CharacterProfileAgent` | 识别角色并生成三视图提示词 |
 | `StoryboardPromptAgent` | 为每个场次生成建立镜头、动作镜头、情绪镜头 |
 | `VideoPackageAgent` | 汇总视频模型提示词包、风格规则和交付顺序 |
+| `QualityAssuranceAgent` | 检查场次、角色、三视图、模型配置、连续性和安全风险 |
 
 ## 设计原则
 
@@ -53,6 +55,8 @@ ProjectInput
 - 每一步都保存 JSON，方便调试和复用中间结果。
 - 输入图片只读取文件元信息和路径，不在默认模式上传图片。
 - 渲染器保持占位，便于后续接入真实图片或视频生成服务。
+- 视频工作流支持 `fast`、`balanced`、`high` 三档质量模式，方便在速度和质量之间取舍。
+- 视频工作流支持 Sora、Runway、Kling、Pika、Luma 等目标模型提示词偏好。
 
 ## 后续扩展方向
 
