@@ -1,8 +1,8 @@
 # Architecture
 
-这个项目是一个单文件 Python 原型，核心目标是把“人物肖像 + 创意主题”转换成可用于图像生成模型的结构化叙事海报提示词。
+这个项目包含两个单文件 Python 工作流：海报提示词工作流和剧本转视频提示词工作流。核心目标是把创意输入转换成可用于图像或视频生成模型的结构化提示词资产。
 
-## 数据流
+## 海报工作流数据流
 
 ```text
 ProjectInput
@@ -13,6 +13,18 @@ ProjectInput
   -> QualityAssuranceAgent
   -> ImageRenderer placeholder
   -> JSON files + render_instruction.txt
+```
+
+## 视频工作流数据流
+
+```text
+ProjectInput
+  -> ScriptStructureAgent
+  -> CharacterProfileAgent
+  -> StoryboardPromptAgent
+  -> VideoPackageAgent
+  -> QualityAssuranceAgent
+  -> JSON files + storyboard_prompts.md + character_three_view_prompts.md
 ```
 
 ## 核心模块
@@ -29,6 +41,10 @@ ProjectInput
 | `QualityAssuranceAgent` | 检查提示词是否包含关键约束 |
 | `PosterAgentOrchestrator` | 串联所有 Agent 并保存输出 |
 | `ImageRenderer` | 当前是占位渲染器，负责写入 `render_instruction.txt` |
+| `ScriptStructureAgent` | 拆解剧本场次、地点、时间、类型和情绪 |
+| `CharacterProfileAgent` | 识别角色并生成三视图提示词 |
+| `StoryboardPromptAgent` | 为每个场次生成建立镜头、动作镜头、情绪镜头 |
+| `VideoPackageAgent` | 汇总视频模型提示词包、风格规则和交付顺序 |
 
 ## 设计原则
 
@@ -36,7 +52,7 @@ ProjectInput
 - OpenAI API 是可选增强，不影响离线 fallback 流程。
 - 每一步都保存 JSON，方便调试和复用中间结果。
 - 输入图片只读取文件元信息和路径，不在默认模式上传图片。
-- 渲染器保持占位，便于后续接入真实图片生成服务。
+- 渲染器保持占位，便于后续接入真实图片或视频生成服务。
 
 ## 后续扩展方向
 
