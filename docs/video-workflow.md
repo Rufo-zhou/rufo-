@@ -17,7 +17,19 @@
 python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --title "雨夜排练" \
+  --target-model sora \
+  --quality-mode high \
+  --aspect-ratio 9:16 \
   --out ./outputs/video
+```
+
+需要更快得到草稿时：
+
+```bash
+python3 script_to_video_prompt_workflow.py \
+  --script examples/sample_script.txt \
+  --quality-mode fast \
+  --out ./outputs/video-fast
 ```
 
 ## 支持的输入
@@ -55,6 +67,7 @@ outputs/video/
   05_qa_report.json
   storyboard_prompts.md
   character_three_view_prompts.md
+  production_brief.md
   video_workflow_result.json
 ```
 
@@ -74,11 +87,11 @@ outputs/video/
 
 ### 视频分镜提示词
 
-`storyboard_prompts.md` 会为每个场次输出三类镜头：
+`storyboard_prompts.md` 会按质量模式输出镜头：
 
-- establishing：建立空间和气氛
-- action：表现动作和剧情推进
-- emotion：捕捉人物情绪和关键反应
+- `fast`：每场 1 个关键镜头，适合快速试方向
+- `balanced`：每场 3 个镜头，包含建立、动作、情绪
+- `high`：每场 5 个镜头，包含建立、动作、细节、情绪、转场
 
 每条镜头提示词都包含：
 
@@ -89,6 +102,20 @@ outputs/video/
 - 灯光风格
 - 连续性要求
 - 负面词
+- 目标模型提示词偏好
+- 画幅比例
+
+### 生产简报
+
+`production_brief.md` 会汇总：
+
+- 目标模型
+- 质量模式
+- 画幅比例
+- 场次数、角色数和镜头数
+- 模型提示建议
+- QA 检查清单
+- 分镜索引
 
 ### 视频模型总包
 
@@ -108,8 +135,24 @@ outputs/video/
 | `--title` | 否 | 项目标题，默认使用文件名 |
 | `--out` | 否 | 输出目录，默认 `./outputs/video` |
 | `--language` | 否 | 输出语言提示，默认 `zh-CN` |
+| `--target-model` | 否 | 目标视频模型，支持 `general`、`sora`、`runway`、`kling`、`pika`、`luma` |
+| `--quality-mode` | 否 | 输出质量模式，支持 `fast`、`balanced`、`high` |
+| `--aspect-ratio` | 否 | 视频画幅，例如 `16:9`、`9:16`、`1:1` |
+| `--max-scenes` | 否 | 最多处理场次数，默认 40 |
+| `--max-characters` | 否 | 最多识别角色数，默认 12 |
 | `--use-openai` | 否 | 开启可选 OpenAI JSON 增强 |
 | `--model` | 否 | OpenAI 模型名，默认 `gpt-4o-mini` |
+
+## 目标模型建议
+
+| 目标模型 | 适合场景 |
+| --- | --- |
+| `general` | 通用视频模型，默认兼容 |
+| `sora` | 强调长时连续性、世界状态和自然运动 |
+| `runway` | 强调简洁、视觉优先、镜头和灯光明确 |
+| `kling` | 强调动作、环境互动和节奏 |
+| `pika` | 强调短提示词、强视觉钩子和简单动作 |
+| `luma` | 强调真实感、空间深度、镜头路径和灯光连续 |
 
 ## 安全限制
 
