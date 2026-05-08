@@ -6,6 +6,7 @@
 
 ```bash
 python3 -m py_compile multi_agent_poster_system.py
+python3 -m py_compile script_to_video_prompt_workflow.py
 ```
 
 建议再运行一次烟雾测试：
@@ -14,6 +15,8 @@ python3 -m py_compile multi_agent_poster_system.py
 printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' | base64 -d > ci.png
 python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --out outputs/ci
 test -f outputs/ci/pipeline_result.json
+python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --out outputs/video-ci
+test -f outputs/video-ci/video_workflow_result.json
 ```
 
 ## CI
@@ -21,8 +24,9 @@ test -f outputs/ci/pipeline_result.json
 GitHub Actions 位于 `.github/workflows/python-ci.yml`，当前会执行：
 
 - Python 编译检查
-- 最小 PNG 输入的 smoke test
-- `pipeline_result.json` 输出检查
+- 海报工作流最小 PNG 输入 smoke test
+- 视频工作流示例剧本 smoke test
+- `pipeline_result.json` 和 `video_workflow_result.json` 输出检查
 
 ## 目录约定
 
@@ -30,7 +34,9 @@ GitHub Actions 位于 `.github/workflows/python-ci.yml`，当前会执行：
 .
 ├── .github/                 # GitHub 工作流、Issue 模板、PR 模板
 ├── docs/                    # 详细文档
+├── examples/                # 示例输入
 ├── multi_agent_poster_system.py
+├── script_to_video_prompt_workflow.py
 ├── README.md                # 项目入口和文档导航
 ├── CONTRIBUTING.md          # 贡献入口
 ├── CODE_OF_CONDUCT.md       # 社区行为准则
@@ -45,6 +51,7 @@ GitHub Actions 位于 `.github/workflows/python-ci.yml`，当前会执行：
 - 不提交 `outputs/`、`.env`、API key、真实肖像或临时测试文件。
 - 修改 README 的命令时，同步检查 `docs/usage.md` 和 CI。
 - 修改脚本入口文件名时，同步检查 README、文档和工作流。
+- 新增工作流时，同步更新示例、docs、README 和 CI。
 
 ## PR 检查清单
 
