@@ -21,3 +21,5 @@
 - 图片输入会检查扩展名、大小和文件头签名。
 - `OPENAI_API_KEY` 只从环境变量读取，不会写入输出文件。
 - GitHub Actions 使用只读仓库权限。
+
+更完整的安全与隐私说明请看 [docs/security.md](docs/security.md)。
