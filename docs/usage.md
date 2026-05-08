@@ -51,6 +51,9 @@ outputs/
 python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --title "雨夜排练" \
+  --target-model sora \
+  --quality-mode high \
+  --aspect-ratio 9:16 \
   --out ./outputs/video
 ```
 
@@ -65,6 +68,7 @@ outputs/video/
   05_qa_report.json
   storyboard_prompts.md
   character_three_view_prompts.md
+  production_brief.md
   video_workflow_result.json
 ```
 
