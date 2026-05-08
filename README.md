@@ -37,7 +37,7 @@
 ```bash
 git clone https://github.com/Rufo-zhou/rufo-.git
 cd rufo-
-python3 "multi_agent_poster_system (1).py" \
+python3 multi_agent_poster_system.py \
   --image ./portrait.png \
   --theme "校园剧院独唱" \
   --out ./outputs
@@ -64,7 +64,7 @@ outputs/
 ```bash
 python3 -m pip install openai
 export OPENAI_API_KEY="your_key"
-python3 "multi_agent_poster_system (1).py" \
+python3 multi_agent_poster_system.py \
   --image ./portrait.png \
   --theme "校园剧院独唱" \
   --out ./outputs \
@@ -91,7 +91,7 @@ python3 "multi_agent_poster_system (1).py" \
 │   ├── ISSUE_TEMPLATE/
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows/python-ci.yml
-├── multi_agent_poster_system (1).py
+├── multi_agent_poster_system.py
 ├── README.md
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
@@ -115,7 +115,7 @@ python3 "multi_agent_poster_system (1).py" \
 
 - 增加单元测试
 - 增加标准 `requirements.txt` 或 `pyproject.toml`
-- 将脚本文件名整理为更适合命令行使用的 `multi_agent_poster_system.py`
+- 增加模块化包结构，方便未来扩展为正式 CLI
 - 接入真实图片生成 API
 - 增加更多主题模板和输出格式
 
