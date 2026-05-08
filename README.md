@@ -1,6 +1,9 @@
 # Multi-Agent Creative Prompt Workflows
 
 [![Python CI](https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-black)
 
 一个可直接运行的多智能体创作提示词工具集。当前包含两个工作流：叙事海报提示词生成，以及剧本转 AI 视频分镜提示词生成。它可以帮助创作者把“想法、肖像、剧本”整理成可交给图像模型或视频模型继续生产的结构化提示词。
 
@@ -70,10 +73,15 @@ outputs/
 python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --title "雨夜排练" \
+  --target-model sora \
+  --quality-mode high \
+  --aspect-ratio 9:16 \
   --out ./outputs/video
 ```
 
-更多参数、OpenAI API 模式和输出说明请看 [docs/usage.md](docs/usage.md) 和 [docs/video-workflow.md](docs/video-workflow.md)。
+需要更快出草稿时，把 `--quality-mode high` 换成 `--quality-mode fast`。
+
+更多参数、OpenAI API 模式和输出说明请看 [docs/usage.md](docs/usage.md)、[docs/video-workflow.md](docs/video-workflow.md) 和 [docs/prompt-quality-guide.md](docs/prompt-quality-guide.md)。
 
 ## 文档导航
 
@@ -82,10 +90,12 @@ python3 script_to_video_prompt_workflow.py \
 | 文档总览 | [docs/README.md](docs/README.md) |
 | 使用说明 | [docs/usage.md](docs/usage.md) |
 | 视频工作流 | [docs/video-workflow.md](docs/video-workflow.md) |
+| 质量指南 | [docs/prompt-quality-guide.md](docs/prompt-quality-guide.md) |
 | 架构说明 | [docs/architecture.md](docs/architecture.md) |
 | 开发流程 | [docs/development.md](docs/development.md) |
 | 安全与隐私 | [docs/security.md](docs/security.md) |
 | 路线图 | [docs/roadmap.md](docs/roadmap.md) |
+| 变更记录 | [CHANGELOG.md](CHANGELOG.md) |
 
 ## 项目结构
 
@@ -99,14 +109,17 @@ python3 script_to_video_prompt_workflow.py \
 │   ├── README.md
 │   ├── architecture.md
 │   ├── development.md
+│   ├── prompt-quality-guide.md
 │   ├── roadmap.md
 │   ├── security.md
 │   ├── usage.md
 │   └── video-workflow.md
 ├── examples/
+│   ├── README.md
 │   └── sample_script.txt
 ├── multi_agent_poster_system.py
 ├── script_to_video_prompt_workflow.py
+├── CHANGELOG.md
 ├── README.md
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
