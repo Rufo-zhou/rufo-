@@ -12,7 +12,7 @@ ProjectInput
   -> PromptEngineeringAgent
   -> QualityAssuranceAgent
   -> ImageRenderer placeholder
-  -> JSON files + render_instruction.txt
+  -> JSON files + render_instruction.txt + poster_prompt_package.md + production_brief.md
 ```
 
 ## 视频工作流数据流
@@ -25,14 +25,14 @@ ProjectInput
   -> VideoPackageAgent
   -> QualityAssuranceAgent
   -> JSON files + storyboard_prompts.md + character_three_view_prompts.md
-  -> production_brief.md
+  -> production_brief.md + model_prompt_queue.md + shot_prompt_queue.csv
 ```
 
 ## 核心模块
 
 | 模块 | 职责 |
 | --- | --- |
-| `ProjectInput` | 保存输入图片路径、主题、输出目录和语言设置 |
+| `ProjectInput` | 保存输入、输出目录、语言、质量模式、目标模型和风格设置 |
 | `LLMClient` | 在默认 fallback 模式和 OpenAI API 模式之间切换 |
 | `BaseAgent` | 提供 Agent 结果包装的基础结构 |
 | `CharacterUnderstandingAgent` | 生成人物气质、肖像保留约束和海报角色 |
@@ -55,8 +55,11 @@ ProjectInput
 - 每一步都保存 JSON，方便调试和复用中间结果。
 - 输入图片只读取文件元信息和路径，不在默认模式上传图片。
 - 渲染器保持占位，便于后续接入真实图片或视频生成服务。
+- 海报工作流会根据主题自动推导场景、符号、情绪和色彩，而不是绑定单一示例主题。
+- 海报工作流支持风格预设、目标图像模型、质量模式和多变体提示词。
 - 视频工作流支持 `fast`、`balanced`、`high` 三档质量模式，方便在速度和质量之间取舍。
 - 视频工作流支持 Sora、Runway、Kling、Pika、Luma 等目标模型提示词偏好。
+- 视频工作流支持创作风格配置，并输出 Markdown / CSV 两种模型排队格式。
 
 ## 后续扩展方向
 
