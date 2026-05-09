@@ -107,7 +107,7 @@ function splitSentences(text) {
 function parseScenes(text, limit) {
   const cleaned = sanitizeText(text);
   const blocks = cleaned
-    .split(/(?=(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+|int\.|ext\.|内景|外景))/i)
+    .split(/\n(?=(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+|int\.|ext\.))/i)
     .map((part) => sanitizeText(part, 900))
     .filter(Boolean);
   const source = blocks.length > 1 ? blocks : splitSentences(cleaned).map((line, index) => `Scene ${index + 1}: ${line}`);
@@ -124,11 +124,15 @@ function parseScenes(text, limit) {
 function extractCharacters(text) {
   const names = new Set();
   const speakerMatches = sanitizeText(text).matchAll(/([\u4e00-\u9fa5A-Za-z]{2,16})\s*[：:]/g);
-  for (const match of speakerMatches) names.add(match[1]);
+  for (const match of speakerMatches) {
+    if (!/第\s*\d+\s*场|场景|内景|外景|scene|int|ext/i.test(match[1])) names.add(match[1]);
+  }
+  const actionNameMatches = sanitizeText(text).matchAll(/([\u4e00-\u9fa5]{2,4})(?=推开|站在|听见|看见|抬头|走向|回头|拿起|打开|说|望向|进入|离开)/g);
+  for (const match of actionNameMatches) names.add(match[1]);
   const commonNames = sanitizeText(text).match(/[\u4e00-\u9fa5]{2,4}/g) || [];
   for (const name of commonNames) {
     if (names.size >= 4) break;
-    if (!/第|内景|外景|夜晚|舞台|剧院|镜头|观众|墙面|声音|提示|模型/.test(name)) names.add(name);
+    if (!/第|内景|外景|夜晚|白天|舞台|剧院|镜头|观众|墙面|声音|提示|模型|最后|一行|座位|聚光|沉重/.test(name)) names.add(name);
   }
   if (!names.size) names.add("主角");
   return Array.from(names).slice(0, 4).map((name, index) => ({
