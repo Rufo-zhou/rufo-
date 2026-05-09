@@ -1,288 +1,533 @@
-const pointer = {
-  x: 0,
-  y: 0,
-  tx: 0,
-  ty: 0,
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+const dom = {
+  canvas: $("#studio-canvas"),
+  cursor: $("#cursor-orbit"),
+  cursorLabel: $("#cursor-label"),
+  scrollMeter: $("#scroll-meter"),
+  hero: $("#hero"),
+  form: $("#script-form"),
+  scriptInput: $("#script-input"),
+  inputMeter: $("#input-meter"),
+  modelTarget: $("#model-target"),
+  stylePreset: $("#style-preset"),
+  aspectRatio: $("#aspect-ratio"),
+  shotDepth: $("#shot-depth"),
+  sceneLimit: $("#scene-limit"),
+  sceneLimitOutput: $("#scene-limit-output"),
+  statusLine: $("#status-line"),
+  outputModel: $("#output-model"),
+  outputCount: $("#output-count"),
+  shotStack: $("#shot-stack"),
+  characterGrid: $("#character-grid"),
+  packageOutput: $("#package-output"),
+  hudShots: $("#hud-shots"),
+  hudCharacters: $("#hud-characters"),
+  copyPackage: $("#copy-package"),
+  downloadMd: $("#download-md"),
+  downloadCsv: $("#download-csv"),
 };
 
-const probe = document.querySelector("#probe");
-const hero = document.querySelector("#hero");
-const fallbackCanvas = document.querySelector("#fallback-canvas");
-const fallbackCtx = fallbackCanvas.getContext("2d");
-const shotStack = document.querySelector("#shot-stack");
-const outputModel = document.querySelector("#output-model");
-const outputCount = document.querySelector("#output-count");
-const form = document.querySelector("#script-form");
-const scriptInput = document.querySelector("#script-input");
-const qualityToggle = document.querySelector("#quality-toggle");
-let activeModel = "Sora";
+const pointer = {
+  x: window.innerWidth * 0.5,
+  y: window.innerHeight * 0.5,
+  tx: window.innerWidth * 0.5,
+  ty: window.innerHeight * 0.5,
+  nx: 0,
+  ny: 0,
+  down: false,
+  label: "Studio",
+};
 
-function updatePointer(event) {
-  pointer.tx = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.ty = -((event.clientY / window.innerHeight) * 2 - 1);
-  if (probe) {
-    probe.style.left = `${event.clientX}px`;
-    probe.style.top = `${event.clientY}px`;
+const state = {
+  packageText: "",
+  csvText: "",
+  shots: [],
+  characters: [],
+};
+
+const styleProfiles = {
+  cinematic: {
+    label: "cinematic",
+    lighting: "motivated cinematic lighting, atmospheric contrast, rich foreground depth",
+    color: "muted teal highlights, warm practical glow, restrained film grain",
+    camera: ["slow dolly in", "orbit reveal", "low-angle tracking", "crane pullback"],
+  },
+  documentary: {
+    label: "documentary",
+    lighting: "natural available light, practical realism, controlled handheld texture",
+    color: "true-to-life palette, soft contrast, location-authentic details",
+    camera: ["observational handheld", "patient locked frame", "gentle push in", "over-shoulder follow"],
+  },
+  commercial: {
+    label: "commercial",
+    lighting: "clean premium lighting, glossy edge highlights, high product clarity",
+    color: "polished neutral base, precise accent color, sharp detail separation",
+    camera: ["hero push in", "smooth slider pass", "macro detail reveal", "vertical reveal"],
+  },
+  anime: {
+    label: "anime",
+    lighting: "stylized rim light, graphic shadow shapes, expressive atmosphere",
+    color: "clear color blocking, luminous highlights, painterly background depth",
+    camera: ["dramatic parallax pan", "fast emotional close-up", "floating crane move", "impact cut-in"],
+  },
+  fantasy: {
+    label: "fantasy",
+    lighting: "mythic volumetric light, glowing particles, magical atmosphere",
+    color: "deep jewel tones, silver highlights, warm amber accents",
+    camera: ["enchanted orbit", "floating dolly", "wide reveal", "slow vertical ascent"],
+  },
+  noir: {
+    label: "noir",
+    lighting: "hard side light, negative fill, blade-like shadows",
+    color: "monochrome base, cold steel highlights, restrained amber practicals",
+    camera: ["shadow tracking", "slow cigarette-smoke push", "locked suspense frame", "Dutch-angle reveal"],
+  },
+};
+
+const lenses = ["24mm wide", "35mm story lens", "50mm natural perspective", "85mm emotional close-up"];
+const shotTypes = ["establishing", "medium", "close-up", "insert", "over-shoulder", "wide reveal"];
+const secretPattern = /(sk-[a-z0-9_-]{12,}|sk-proj-[a-z0-9_-]{12,}|api[_-]?key|token|password|secret)/i;
+
+function sanitizeText(value, limit = 5000) {
+  return String(value || "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .slice(0, limit)
+    .trim();
+}
+
+function splitSentences(text) {
+  return text
+    .split(/[\n。！？!?]+/)
+    .map((line) => sanitizeText(line, 260))
+    .filter(Boolean);
+}
+
+function parseScenes(text, limit) {
+  const cleaned = sanitizeText(text);
+  const blocks = cleaned
+    .split(/(?=(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+|int\.|ext\.|内景|外景))/i)
+    .map((part) => sanitizeText(part, 900))
+    .filter(Boolean);
+  const source = blocks.length > 1 ? blocks : splitSentences(cleaned).map((line, index) => `Scene ${index + 1}: ${line}`);
+  return source.slice(0, limit).map((block, index) => {
+    const lines = splitSentences(block);
+    const heading = lines[0] || `Scene ${index + 1}`;
+    const action = lines.slice(1).join("。") || heading;
+    const time = /夜|night/i.test(block) ? "night" : /日|day|白天/i.test(block) ? "day" : "story time";
+    const location = heading.replace(/^第\s*\d+\s*场[:：]?\s*/i, "").slice(0, 36) || "story space";
+    return { index, heading, action, time, location };
+  });
+}
+
+function extractCharacters(text) {
+  const names = new Set();
+  const speakerMatches = sanitizeText(text).matchAll(/([\u4e00-\u9fa5A-Za-z]{2,16})\s*[：:]/g);
+  for (const match of speakerMatches) names.add(match[1]);
+  const commonNames = sanitizeText(text).match(/[\u4e00-\u9fa5]{2,4}/g) || [];
+  for (const name of commonNames) {
+    if (names.size >= 4) break;
+    if (!/第|内景|外景|夜晚|舞台|剧院|镜头|观众|墙面|声音|提示|模型/.test(name)) names.add(name);
+  }
+  if (!names.size) names.add("主角");
+  return Array.from(names).slice(0, 4).map((name, index) => ({
+    name,
+    role: index === 0 ? "primary character" : "supporting presence",
+    front: `${name}, front view, consistent face shape, wardrobe locked, neutral full-body reference`,
+    side: `${name}, side view, same costume, profile silhouette, clear hair and body proportions`,
+    back: `${name}, back view, same materials, recognizable posture, production turnaround sheet`,
+  }));
+}
+
+function buildShots(scenes, config) {
+  const profile = styleProfiles[config.style] || styleProfiles.cinematic;
+  const perScene = config.depth === "high" ? 3 : config.depth === "fast" ? 1 : 2;
+  const shots = [];
+  scenes.forEach((scene) => {
+    for (let local = 0; local < perScene; local += 1) {
+      const shotIndex = shots.length;
+      const camera = profile.camera[shotIndex % profile.camera.length];
+      const shotType = shotTypes[shotIndex % shotTypes.length];
+      const lens = lenses[shotIndex % lenses.length];
+      const action = splitSentences(scene.action)[local] || scene.action || scene.heading;
+      shots.push({
+        number: shotIndex + 1,
+        title: `${scene.location} / ${shotType}`,
+        scene: scene.heading,
+        prompt: [
+          `${config.model} ${profile.label} video prompt.`,
+          `Aspect ratio ${config.aspect}.`,
+          `${action}.`,
+          `Camera: ${camera}, ${lens}, ${shotType} composition.`,
+          `Lighting: ${profile.lighting}.`,
+          `Color: ${profile.color}.`,
+          "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+        ].join(" "),
+        meta: [config.model, profile.label, config.aspect, camera, lens],
+      });
+    }
+  });
+  return shots.slice(0, 18);
+}
+
+function buildPackage({ text, scenes, characters, shots, config }) {
+  const characterBlock = characters
+    .map((item) => [`### ${item.name}`, `- Front: ${item.front}`, `- Side: ${item.side}`, `- Back: ${item.back}`].join("\n"))
+    .join("\n\n");
+  const shotBlock = shots
+    .map((shot) => [`### Shot ${String(shot.number).padStart(2, "0")} - ${shot.title}`, shot.prompt].join("\n"))
+    .join("\n\n");
+  const negative = [
+    "low quality",
+    "warped anatomy",
+    "extra fingers",
+    "identity drift",
+    "unreadable text",
+    "random logo",
+    "flickering face",
+    "inconsistent costume",
+  ].join(", ");
+  return [
+    "# Rufo AI Video Prompt Package",
+    "",
+    `- Target model: ${config.model}`,
+    `- Creative style: ${config.style}`,
+    `- Aspect ratio: ${config.aspect}`,
+    `- Shot depth: ${config.depth}`,
+    `- Source length: ${text.length} characters`,
+    "",
+    "## Production Intent",
+    "Create a coherent cinematic sequence with clear scene continuity, controlled camera language, and reusable character references.",
+    "",
+    "## Character Three-View Prompts",
+    characterBlock,
+    "",
+    "## Storyboard Prompt Queue",
+    shotBlock,
+    "",
+    "## Negative Prompt",
+    negative,
+  ].join("\n");
+}
+
+function buildCsv(shots) {
+  const escapeCsv = (value) => `"${String(value).replaceAll('"', '""')}"`;
+  const rows = [["shot", "scene", "title", "prompt", "meta"]];
+  shots.forEach((shot) => {
+    rows.push([shot.number, shot.scene, shot.title, shot.prompt, shot.meta.join(" | ")]);
+  });
+  return rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+}
+
+function setStatus(message, isWarning = false) {
+  dom.statusLine.textContent = message;
+  dom.statusLine.toggleAttribute("data-warning", isWarning);
+}
+
+function makeEl(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function renderShots(shots) {
+  const fragment = document.createDocumentFragment();
+  shots.forEach((shot, index) => {
+    const card = makeEl("article", "shot-card");
+    card.style.animationDelay = `${index * 55}ms`;
+    card.append(makeEl("div", "shot-number", String(shot.number).padStart(2, "0")));
+    const body = makeEl("div");
+    body.append(makeEl("h3", "", shot.title));
+    body.append(makeEl("p", "", shot.prompt));
+    const meta = makeEl("div", "shot-meta");
+    shot.meta.forEach((item) => meta.append(makeEl("span", "", item)));
+    body.append(meta);
+    card.append(body);
+    fragment.append(card);
+  });
+  dom.shotStack.replaceChildren(fragment);
+}
+
+function renderCharacters(characters) {
+  const fragment = document.createDocumentFragment();
+  characters.forEach((item) => {
+    const card = makeEl("article", "character-card");
+    card.append(makeEl("h3", "", item.name));
+    card.append(makeEl("p", "", `${item.role}. ${item.front}`));
+    const meta = makeEl("div", "shot-meta");
+    meta.append(makeEl("span", "", "front"));
+    meta.append(makeEl("span", "", "side"));
+    meta.append(makeEl("span", "", "back"));
+    card.append(meta);
+    fragment.append(card);
+  });
+  dom.characterGrid.replaceChildren(fragment);
+}
+
+function getConfig() {
+  return {
+    model: dom.modelTarget.value,
+    style: dom.stylePreset.value,
+    aspect: dom.aspectRatio.value,
+    depth: dom.shotDepth.value,
+    limit: Number(dom.sceneLimit.value),
+  };
+}
+
+function generatePackage() {
+  const text = sanitizeText(dom.scriptInput.value);
+  const config = getConfig();
+  if (!text) {
+    setStatus("Paste a script or scene outline before generating.", true);
+    return;
+  }
+  if (secretPattern.test(text)) {
+    setStatus("Sensitive token-like text detected. Remove secrets before generating.", true);
+    return;
+  }
+
+  const scenes = parseScenes(text, config.limit);
+  const characters = extractCharacters(text);
+  const shots = buildShots(scenes, config);
+  const packageText = buildPackage({ text, scenes, characters, shots, config });
+  const csvText = buildCsv(shots);
+
+  state.shots = shots;
+  state.characters = characters;
+  state.packageText = packageText;
+  state.csvText = csvText;
+
+  dom.outputModel.textContent = `${config.model} handoff`;
+  dom.outputCount.textContent = `${shots.length} shots`;
+  dom.hudShots.textContent = `${shots.length} shots`;
+  dom.hudCharacters.textContent = `${characters.length} profiles`;
+  dom.packageOutput.textContent = packageText;
+  renderShots(shots);
+  renderCharacters(characters);
+  setStatus(`Generated ${shots.length} shots and ${characters.length} character references.`);
+}
+
+async function copyText(text) {
+  if (!text) return false;
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.opacity = "0";
+    document.body.append(helper);
+    helper.select();
+    const ok = document.execCommand("copy");
+    helper.remove();
+    return ok;
   }
 }
 
-window.addEventListener("pointermove", updatePointer);
-window.addEventListener("pointerleave", () => {
-  if (probe) probe.style.opacity = "0.28";
-});
-window.addEventListener("pointerenter", () => {
-  if (probe) probe.style.opacity = "0.86";
-});
-
-function resizeFallbackCanvas() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  fallbackCanvas.width = Math.floor(window.innerWidth * dpr);
-  fallbackCanvas.height = Math.floor(window.innerHeight * dpr);
-  fallbackCanvas.style.width = `${window.innerWidth}px`;
-  fallbackCanvas.style.height = `${window.innerHeight}px`;
-  fallbackCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+function downloadText(filename, text, type) {
+  if (!text) return;
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
-function drawFallback(time = 0) {
-  const width = window.innerWidth;
-  const height = Math.max(window.innerHeight, hero?.offsetHeight || window.innerHeight);
-  fallbackCtx.clearRect(0, 0, width, height);
-  fallbackCtx.fillStyle = "#121412";
-  fallbackCtx.fillRect(0, 0, width, height);
-
-  const horizon = height * 0.58;
-  fallbackCtx.save();
-  fallbackCtx.translate(width * 0.5, horizon);
-  fallbackCtx.rotate(-0.1 + pointer.x * 0.04);
-  for (let i = 0; i < 24; i += 1) {
-    const y = Math.sin(i * 0.7 + time * 0.001) * 18 + i * 7;
-    fallbackCtx.strokeStyle = i % 3 === 0 ? "rgba(124,199,194,0.45)" : "rgba(243,240,232,0.2)";
-    fallbackCtx.lineWidth = i % 3 === 0 ? 2 : 1;
-    fallbackCtx.beginPath();
-    fallbackCtx.moveTo(-width * 0.75, y);
-    fallbackCtx.bezierCurveTo(-width * 0.18, y - 150, width * 0.2, y + 130, width * 0.76, y - 80);
-    fallbackCtx.stroke();
-  }
-  fallbackCtx.restore();
-
-  for (let i = 0; i < 80; i += 1) {
-    const x = (i * 157 + time * 0.018) % width;
-    const y = (i * 67 + Math.sin(time * 0.001 + i) * 18) % height;
-    fallbackCtx.fillStyle = i % 4 === 0 ? "rgba(214,185,109,0.5)" : "rgba(243,240,232,0.2)";
-    fallbackCtx.fillRect(x, y, i % 4 === 0 ? 2 : 1, i % 4 === 0 ? 12 : 5);
-  }
-
-  requestAnimationFrame(drawFallback);
+function updateInputMeter() {
+  const count = sanitizeText(dom.scriptInput.value).length;
+  dom.inputMeter.textContent = `${count} / 5000`;
 }
 
-function createShotCards() {
-  const text = scriptInput.value.trim() || "镜头从一段未命名剧本开始。";
-  const lines = text
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(0, 4);
-  const quality = qualityToggle.checked ? "high detail" : "fast draft";
-  const fallbackLines = [
-    "主角进入一个尚未命名的空间，环境用光先建立情绪。",
-    "镜头靠近关键物件，揭示故事中的冲突线索。",
-    "角色做出选择，画面进入可生成的高潮镜头。",
-  ];
-  const source = lines.length ? lines : fallbackLines;
-  const shots = source.map((line, index) => {
-    const motion = ["slow dolly in", "orbit reveal", "handheld close pass", "crane pullback"][index % 4];
-    const lens = ["35mm", "50mm", "85mm", "anamorphic wide"][index % 4];
-    return {
-      title: index === 0 ? "Opening atmosphere" : index === source.length - 1 ? "Emotional turn" : "Story reveal",
-      prompt: `${activeModel} ${quality}: ${line} Use cinematic lighting, controlled subject continuity, layered foreground depth, ${motion}, ${lens}, coherent action across the shot.`,
-      meta: [activeModel, quality, motion, lens],
-    };
+function setupTabs() {
+  $$(".tab-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const panel = button.dataset.panel;
+      $$(".tab-button").forEach((item) => item.classList.toggle("active", item === button));
+      $$(".output-panel").forEach((item) => item.classList.toggle("active", item.id === `panel-${panel}`));
+    });
+  });
+}
+
+function setupForm() {
+  dom.form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    generatePackage();
+  });
+  [dom.modelTarget, dom.stylePreset, dom.aspectRatio, dom.shotDepth, dom.sceneLimit].forEach((control) => {
+    control.addEventListener("change", generatePackage);
+    control.addEventListener("input", () => {
+      dom.sceneLimitOutput.textContent = dom.sceneLimit.value;
+    });
+  });
+  dom.scriptInput.addEventListener("input", updateInputMeter);
+  dom.copyPackage.addEventListener("click", async () => {
+    const ok = await copyText(state.packageText);
+    setStatus(ok ? "Prompt package copied." : "Copy failed. Use the Package tab text.", !ok);
+  });
+  dom.downloadMd.addEventListener("click", () => {
+    downloadText("rufo-video-prompt-package.md", state.packageText, "text/markdown;charset=utf-8");
+    setStatus("Markdown package downloaded.");
+  });
+  dom.downloadCsv.addEventListener("click", () => {
+    downloadText("rufo-shot-prompt-queue.csv", state.csvText, "text/csv;charset=utf-8");
+    setStatus("CSV shot queue downloaded.");
+  });
+}
+
+function setupCursor() {
+  const interactive = "a, button, input, select, textarea, label";
+  window.addEventListener("pointermove", (event) => {
+    pointer.tx = event.clientX;
+    pointer.ty = event.clientY;
+    pointer.nx = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.ny = (event.clientY / window.innerHeight) * 2 - 1;
+    dom.hero?.style.setProperty("--mx", `${event.clientX}px`);
+    dom.hero?.style.setProperty("--my", `${event.clientY}px`);
+    const target = event.target.closest(interactive);
+    dom.cursor.classList.toggle("is-action", Boolean(target));
+    dom.cursor.classList.toggle("is-typing", Boolean(event.target.closest("textarea, input, select")));
+    dom.cursorLabel.textContent = target?.dataset.cursor || target?.textContent?.trim()?.slice(0, 12) || "Studio";
+  });
+  window.addEventListener("pointerdown", () => {
+    pointer.down = true;
+    dom.cursor.classList.add("is-down");
+  });
+  window.addEventListener("pointerup", () => {
+    pointer.down = false;
+    dom.cursor.classList.remove("is-down");
   });
 
-  outputModel.textContent = `${activeModel} handoff`;
-  outputCount.textContent = `${shots.length} shots`;
-  shotStack.innerHTML = shots
-    .map(
-      (shot, index) => `
-        <article class="shot-card" style="animation-delay: ${index * 90}ms">
-          <div class="shot-number">${String(index + 1).padStart(2, "0")}</div>
-          <div>
-            <h3>${shot.title}</h3>
-            <p>${shot.prompt}</p>
-            <div class="shot-meta">
-              ${shot.meta.map((item) => `<span>${item}</span>`).join("")}
-            </div>
-          </div>
-        </article>
-      `,
-    )
-    .join("");
+  function animateCursor() {
+    pointer.x += (pointer.tx - pointer.x) * 0.18;
+    pointer.y += (pointer.ty - pointer.y) * 0.18;
+    dom.cursor.style.transform = `translate3d(${pointer.x - 56}px, ${pointer.y - 56}px, 0)`;
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
 }
 
-document.querySelectorAll("[data-model]").forEach((button) => {
-  button.addEventListener("click", () => {
-    activeModel = button.dataset.model || "Sora";
-    document.querySelectorAll("[data-model]").forEach((item) => item.classList.remove("active"));
-    button.classList.add("active");
-    createShotCards();
-  });
-});
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  createShotCards();
-});
-
-qualityToggle.addEventListener("change", createShotCards);
-
-function revealSections() {
+function setupScrollAnimation() {
+  const panels = $$(".page-panel");
+  const blocks = $$(".reveal-block");
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        entry.target.toggleAttribute("data-visible", entry.isIntersecting);
+        entry.target.classList.toggle("is-visible", entry.isIntersecting);
       });
     },
-    { threshold: 0.2 },
+    { threshold: 0.18 },
   );
-  document.querySelectorAll(".band").forEach((section) => observer.observe(section));
+  panels.forEach((panel) => observer.observe(panel));
+  blocks.forEach((block) => observer.observe(block));
+
+  const updateScroll = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = max > 0 ? window.scrollY / max : 0;
+    dom.scrollMeter.style.transform = `scaleX(${Math.max(0, Math.min(1, progress))})`;
+  };
+  window.addEventListener("scroll", updateScroll, { passive: true });
+  updateScroll();
 }
 
-async function startThreeScene() {
-  const canvas = document.querySelector("#studio-canvas");
-  try {
-    const THREE = await import("https://esm.sh/three@0.164.1");
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+function setupCanvas() {
+  const canvas = dom.canvas;
+  const ctx = canvas.getContext("2d");
+  let width = 0;
+  let height = 0;
+  const particles = Array.from({ length: 180 }, (_, index) => ({
+    x: Math.random(),
+    y: Math.random(),
+    z: Math.random(),
+    speed: 0.0003 + (index % 9) * 0.00004,
+  }));
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x11110f, 0.035);
-
-    const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 2.2, 9.8);
-
-    const ambient = new THREE.AmbientLight(0xf3f0e8, 1.5);
-    const key = new THREE.DirectionalLight(0x7cc7c2, 2.2);
-    key.position.set(2, 6, 4);
-    const warm = new THREE.PointLight(0xd6b96d, 2.5, 18);
-    warm.position.set(-5, -1, 4);
-    scene.add(ambient, key, warm);
-
-    const curveGroup = new THREE.Group();
-    const materialA = new THREE.MeshStandardMaterial({
-      color: 0x4d5c45,
-      roughness: 0.78,
-      metalness: 0.08,
-    });
-    const materialB = new THREE.MeshStandardMaterial({
-      color: 0xc8d4cf,
-      roughness: 0.46,
-      metalness: 0.18,
-      emissive: 0x102c2a,
-      emissiveIntensity: 0.16,
-    });
-
-    for (let i = 0; i < 7; i += 1) {
-      const points = [];
-      for (let j = 0; j < 9; j += 1) {
-        points.push(
-          new THREE.Vector3(
-            -7 + j * 1.75,
-            Math.sin(j * 0.9 + i) * 0.5 - i * 0.18,
-            Math.cos(j * 0.7 + i) * 0.7 - i * 0.42,
-          ),
-        );
-      }
-      const curve = new THREE.CatmullRomCurve3(points);
-      const tube = new THREE.TubeGeometry(curve, 80, 0.045 + i * 0.012, 12, false);
-      const mesh = new THREE.Mesh(tube, i % 2 ? materialA : materialB);
-      mesh.rotation.z = -0.18 + i * 0.035;
-      mesh.position.y = -1.6 + i * 0.18;
-      curveGroup.add(mesh);
-    }
-    scene.add(curveGroup);
-
-    const panelGroup = new THREE.Group();
-    const panelMaterial = new THREE.MeshStandardMaterial({
-      color: 0xf3f0e8,
-      roughness: 0.62,
-      transparent: true,
-      opacity: 0.38,
-      side: THREE.DoubleSide,
-    });
-    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0xf3f0e8, transparent: true, opacity: 0.55 });
-    for (let i = 0; i < 9; i += 1) {
-      const geo = new THREE.PlaneGeometry(1.55, 0.9);
-      const panel = new THREE.Mesh(geo, panelMaterial.clone());
-      panel.position.set(-5.3 + i * 1.35, 0.85 + Math.sin(i) * 0.3, -1.2 - i * 0.12);
-      panel.rotation.set(-0.16, -0.34 + i * 0.06, 0.07);
-      panel.userData.seed = i;
-      panelGroup.add(panel);
-
-      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMaterial);
-      edges.position.copy(panel.position);
-      edges.rotation.copy(panel.rotation);
-      panelGroup.add(edges);
-    }
-    scene.add(panelGroup);
-
-    const particleGeometry = new THREE.BufferGeometry();
-    const particleCount = 420;
-    const positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i += 1) {
-      positions[i * 3] = (Math.random() - 0.5) * 14;
-      positions[i * 3 + 1] = Math.random() * 6 - 0.3;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
-    }
-    particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    const particles = new THREE.Points(
-      particleGeometry,
-      new THREE.PointsMaterial({
-        color: 0xd6b96d,
-        size: 0.028,
-        transparent: true,
-        opacity: 0.8,
-      }),
-    );
-    scene.add(particles);
-
-    function handleResize() {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-    }
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    function animate(time) {
-      pointer.x += (pointer.tx - pointer.x) * 0.06;
-      pointer.y += (pointer.ty - pointer.y) * 0.06;
-      curveGroup.rotation.y = pointer.x * 0.11;
-      curveGroup.rotation.x = -0.08 + pointer.y * 0.05;
-      curveGroup.position.x = pointer.x * 0.24;
-      panelGroup.rotation.y = pointer.x * 0.08;
-      panelGroup.children.forEach((child) => {
-        if (child.isMesh) {
-          child.material.opacity = 0.24 + Math.sin(time * 0.001 + child.userData.seed) * 0.08 + Math.abs(pointer.x) * 0.1;
-        }
-      });
-      particles.rotation.y = time * 0.00008;
-      particles.position.x = pointer.x * 0.55;
-      camera.position.x += (pointer.x * 0.9 - camera.position.x) * 0.03;
-      camera.position.y += (2.2 + pointer.y * 0.45 - camera.position.y) * 0.03;
-      camera.lookAt(0, -0.25, 0);
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    }
-    requestAnimationFrame(animate);
-  } catch (error) {
-    canvas.style.display = "none";
-    console.info("Three scene fallback active", error);
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+
+  function drawPanel(x, y, w, h, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = "rgba(244,241,232,0.34)";
+    ctx.fillStyle = "rgba(244,241,232,0.055)";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+    ctx.restore();
+  }
+
+  function draw(time) {
+    const t = time * 0.001;
+    ctx.clearRect(0, 0, width, height);
+    const gradient = ctx.createRadialGradient(width * 0.52, height * 0.38, 0, width * 0.52, height * 0.38, width * 0.8);
+    gradient.addColorStop(0, "#202820");
+    gradient.addColorStop(0.45, "#111411");
+    gradient.addColorStop(1, "#090a09");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    particles.forEach((particle, index) => {
+      particle.y += particle.speed;
+      if (particle.y > 1.05) particle.y = -0.05;
+      const x = particle.x * width + pointer.nx * 34 * particle.z;
+      const y = particle.y * height + Math.sin(t + index) * 10;
+      ctx.fillStyle = index % 6 === 0 ? "rgba(223,191,97,0.62)" : "rgba(244,241,232,0.22)";
+      ctx.fillRect(x, y, index % 6 === 0 ? 2 : 1, index % 6 === 0 ? 12 : 5);
+    });
+
+    ctx.save();
+    ctx.translate(width * 0.5 + pointer.nx * 56, height * 0.67 + pointer.ny * 26);
+    ctx.rotate(-0.08 + pointer.nx * 0.04);
+    for (let i = 0; i < 18; i += 1) {
+      const y = -82 + i * 11 + Math.sin(t * 1.3 + i) * 7;
+      ctx.strokeStyle = i % 3 === 0 ? "rgba(111,212,203,0.52)" : "rgba(244,241,232,0.16)";
+      ctx.lineWidth = i % 3 === 0 ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(-width * 0.62, y);
+      ctx.bezierCurveTo(-width * 0.2, y - 90, width * 0.12, y + 96, width * 0.68, y - 42);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    for (let i = 0; i < 9; i += 1) {
+      const x = width * 0.28 + i * 82 + pointer.nx * (i - 4) * 7;
+      const y = height * 0.27 + Math.sin(t + i) * 18 + pointer.ny * 16;
+      drawPanel(x, y, 92, 58, 0.28 + i * 0.018);
+    }
+
+    const glow = ctx.createRadialGradient(pointer.tx, pointer.ty, 0, pointer.tx, pointer.ty, 220);
+    glow.addColorStop(0, pointer.down ? "rgba(138,168,255,0.34)" : "rgba(111,212,203,0.22)");
+    glow.addColorStop(1, "rgba(111,212,203,0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, width, height);
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+  requestAnimationFrame(draw);
 }
 
-resizeFallbackCanvas();
-drawFallback();
-createShotCards();
-revealSections();
-startThreeScene();
-window.addEventListener("resize", resizeFallbackCanvas);
+setupCursor();
+setupTabs();
+setupForm();
+setupScrollAnimation();
+setupCanvas();
+updateInputMeter();
+dom.sceneLimitOutput.textContent = dom.sceneLimit.value;
+generatePackage();
