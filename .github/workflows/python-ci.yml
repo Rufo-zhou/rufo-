@@ -22,26 +22,33 @@ jobs:
       - name: Run poster smoke test
         run: |
           printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' | base64 -d > ci.png
-          python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --out outputs/ci
+          python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --style-preset cinematic --model-target sdxl --quality-mode high --aspect-ratio 2:3 --variations 2 --out outputs/ci
           test -f outputs/ci/pipeline_result.json
+          test -f outputs/ci/poster_prompt_package.md
+          test -f outputs/ci/production_brief.md
 
       - name: Run video prompt smoke test
         run: |
-          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --out outputs/video-ci
+          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --creative-style cinematic --out outputs/video-ci
           test -f outputs/video-ci/video_workflow_result.json
           test -f outputs/video-ci/storyboard_prompts.md
           test -f outputs/video-ci/character_three_view_prompts.md
           test -f outputs/video-ci/production_brief.md
+          test -f outputs/video-ci/model_prompt_queue.md
+          test -f outputs/video-ci/shot_prompt_queue.csv
 
       - name: Run video prompt quality modes
         run: |
-          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode fast --target-model runway --max-scenes 2 --out outputs/video-fast-ci
-          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model sora --aspect-ratio 9:16 --out outputs/video-high-ci
+          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode fast --target-model runway --creative-style commercial --max-scenes 2 --out outputs/video-fast-ci
+          python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model sora --creative-style documentary --aspect-ratio 9:16 --out outputs/video-high-ci
           test -f outputs/video-high-ci/production_brief.md
 
-      - name: Validate video prompt safeguards
+      - name: Validate workflow safeguards
         run: |
-          printf '第1场：内景 房间 夜\n小雅：秘密在桌上。\nsk-proj-1234567890abcdef\n' > secret-script.txt
+          token_prefix='sk'
+          token_body='proj-1234567890abcdef'
+          ! python3 multi_agent_poster_system.py --image ci.png --theme "secret ${token_prefix}-${token_body}" --out outputs/poster-secret-ci
+          printf '第1场：内景 房间 夜\n小雅：秘密在桌上。\n%s-%s\n' "$token_prefix" "$token_body" > secret-script.txt
           python3 script_to_video_prompt_workflow.py --script secret-script.txt --out outputs/video-secret-ci
           grep -q '"status": "needs_revision"' outputs/video-secret-ci/05_qa_report.json
           printf 'hello' > bad-script.exe
