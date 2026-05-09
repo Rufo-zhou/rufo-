@@ -26,6 +26,7 @@
 - 无第三方依赖即可运行
 - 支持 `.jpg`、`.jpeg`、`.png`、`.webp` 输入
 - 会检查图片扩展名、文件大小和真实图片文件头
+- 海报工作流支持风格预设、目标图像模型、质量模式、画幅和多变体提示词
 - 内置 5 个创作 Agent：
   - Character Understanding：人物约束与气质分析
   - Theme Parsing：主题、场景、情绪、符号拆解
@@ -65,6 +66,8 @@ outputs/
   06_render_info.json
   pipeline_result.json
   render_instruction.txt
+  poster_prompt_package.md
+  production_brief.md
 ```
 
 剧本转视频分镜工作流：
@@ -75,6 +78,7 @@ python3 script_to_video_prompt_workflow.py \
   --title "雨夜排练" \
   --target-model sora \
   --quality-mode high \
+  --creative-style cinematic \
   --aspect-ratio 9:16 \
   --out ./outputs/video
 ```
@@ -89,6 +93,7 @@ python3 script_to_video_prompt_workflow.py \
 | --- | --- |
 | 文档总览 | [docs/README.md](docs/README.md) |
 | 使用说明 | [docs/usage.md](docs/usage.md) |
+| 海报工作流 | [docs/poster-workflow.md](docs/poster-workflow.md) |
 | 视频工作流 | [docs/video-workflow.md](docs/video-workflow.md) |
 | 质量指南 | [docs/prompt-quality-guide.md](docs/prompt-quality-guide.md) |
 | 架构说明 | [docs/architecture.md](docs/architecture.md) |
@@ -109,6 +114,7 @@ python3 script_to_video_prompt_workflow.py \
 │   ├── README.md
 │   ├── architecture.md
 │   ├── development.md
+│   ├── poster-workflow.md
 │   ├── prompt-quality-guide.md
 │   ├── roadmap.md
 │   ├── security.md
