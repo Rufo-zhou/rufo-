@@ -19,6 +19,7 @@ python3 script_to_video_prompt_workflow.py \
   --title "雨夜排练" \
   --target-model sora \
   --quality-mode high \
+  --creative-style cinematic \
   --aspect-ratio 9:16 \
   --out ./outputs/video
 ```
@@ -68,6 +69,8 @@ outputs/video/
   storyboard_prompts.md
   character_three_view_prompts.md
   production_brief.md
+  model_prompt_queue.md
+  shot_prompt_queue.csv
   video_workflow_result.json
 ```
 
@@ -117,6 +120,12 @@ outputs/video/
 - QA 检查清单
 - 分镜索引
 
+### 模型排队提示词
+
+`model_prompt_queue.md` 会按 `shot_id` 顺序整理可复制提示词，适合人工逐条放入视频模型。
+
+`shot_prompt_queue.csv` 会把镜头编号、角色、镜头语言、提示词、负面词和制作备注整理成表格，适合导入表格工具或后续自动化流程。
+
 ### 视频模型总包
 
 `04_video_prompt_package.json` 适合被其他工具读取或二次处理，里面包含：
@@ -137,6 +146,7 @@ outputs/video/
 | `--language` | 否 | 输出语言提示，默认 `zh-CN` |
 | `--target-model` | 否 | 目标视频模型，支持 `general`、`sora`、`runway`、`kling`、`pika`、`luma` |
 | `--quality-mode` | 否 | 输出质量模式，支持 `fast`、`balanced`、`high` |
+| `--creative-style` | 否 | 视频风格，支持 `cinematic`、`realistic`、`anime`、`documentary`、`commercial`、`fantasy` |
 | `--aspect-ratio` | 否 | 视频画幅，例如 `16:9`、`9:16`、`1:1` |
 | `--max-scenes` | 否 | 最多处理场次数，默认 40 |
 | `--max-characters` | 否 | 最多识别角色数，默认 12 |
@@ -153,6 +163,17 @@ outputs/video/
 | `kling` | 强调动作、环境互动和节奏 |
 | `pika` | 强调短提示词、强视觉钩子和简单动作 |
 | `luma` | 强调真实感、空间深度、镜头路径和灯光连续 |
+
+## 风格建议
+
+| 风格 | 适合场景 |
+| --- | --- |
+| `cinematic` | 默认电影感叙事、短片、预告片式分镜 |
+| `realistic` | 写实真人、生活化剧情、低夸张度项目 |
+| `anime` | 动画 key visual、二次元短片、情绪化动作 |
+| `documentary` | 纪实感、真实人物故事、自然光影 |
+| `commercial` | 广告短片、产品化表达、强钩子短视频 |
+| `fantasy` | 奇幻、神话、魔法现实主义世界观 |
 
 ## 安全限制
 
