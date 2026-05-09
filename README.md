@@ -1,6 +1,7 @@
 # Multi-Agent Creative Prompt Workflows
 
 [![Python CI](https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml)
+[![Website](https://github.com/Rufo-zhou/rufo-/actions/workflows/pages.yml/badge.svg)](https://github.com/Rufo-zhou/rufo-/actions/workflows/pages.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-black)
@@ -20,6 +21,22 @@
 - 多智能体创作流程的 Python 原型参考
 
 它不会直接生成图片或视频。默认模式会生成一组 JSON 分析结果、Markdown 提示词文件和模型可读的 prompt package，你可以把最终提示词复制到自己使用的图像或视频生成工具中继续出图、出片。
+
+## 项目网站
+
+仓库新增了一个互动展示网站：[site/](site/)。
+
+它把项目包装成一个 AI 创作工作室入口，包含全屏 3D 视觉、剧本转分镜演示、两个工作流介绍和文档导航。发布到 GitHub Pages 后，默认访问地址为：
+
+```text
+https://rufo-zhou.github.io/rufo-/
+```
+
+本地预览：
+
+```bash
+python3 -m http.server 4173 --directory site
+```
 
 ## 功能特点
 
@@ -123,6 +140,11 @@ python3 script_to_video_prompt_workflow.py \
 ├── examples/
 │   ├── README.md
 │   └── sample_script.txt
+├── site/
+│   ├── README.md
+│   ├── app.js
+│   ├── index.html
+│   └── styles.css
 ├── multi_agent_poster_system.py
 ├── script_to_video_prompt_workflow.py
 ├── CHANGELOG.md
