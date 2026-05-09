@@ -12,7 +12,7 @@
       content="Rufo AI Workflow Studio turns scripts into storyboard prompts, character turnarounds, model handoff queues, and production-ready AI video prompt packages."
     />
     <title>Rufo AI Workflow Studio</title>
-    <link rel="stylesheet" href="./styles.css?v=20260509-ui2" />
+    <link rel="stylesheet" href="./styles.css?v=20260509-luxe1" />
   </head>
   <body>
     <div class="cursor-orbit" id="cursor-orbit" aria-hidden="true">
@@ -29,11 +29,16 @@
           <span>Rufo Studio</span>
         </a>
         <nav class="nav-links" aria-label="Website sections">
-          <a class="magnetic" href="#studio" data-cursor="Create">Studio</a>
-          <a class="magnetic" href="#workflow" data-cursor="Map">Flow</a>
-          <a class="magnetic" href="#gallery" data-cursor="Systems">Systems</a>
-          <a class="magnetic" href="#docs" data-cursor="Docs">Docs</a>
+          <a class="magnetic" href="#studio" data-cursor="Create" data-i18n="nav.studio">创作台</a>
+          <a class="magnetic" href="#workflow" data-cursor="Map" data-i18n="nav.flow">流程</a>
+          <a class="magnetic" href="#gallery" data-cursor="Systems" data-i18n="nav.systems">系统</a>
+          <a class="magnetic" href="#docs" data-cursor="Docs" data-i18n="nav.docs">文档</a>
         </nav>
+        <div class="language-switch" role="group" aria-label="Language">
+          <button class="lang-button active magnetic" type="button" data-lang="zh" data-cursor="中文">中</button>
+          <button class="lang-button magnetic" type="button" data-lang="en" data-cursor="English">EN</button>
+          <button class="lang-button magnetic" type="button" data-lang="ja" data-cursor="日本語">日</button>
+        </div>
         <a
           class="nav-cta magnetic"
           href="https://github.com/Rufo-zhou/rufo-"
@@ -56,44 +61,61 @@
             <span class="scanline"></span>
           </div>
 
+          <figure class="hero-object-stage" id="hero-object-stage" aria-label="Interactive AI production workbench">
+            <img
+              class="hero-object"
+              src="./assets/hero-workbench.svg?v=20260509-luxe1"
+              alt="Cinematic AI video workflow workbench with screenplay pages, storyboard frames, a lens, film strips, and a production tablet"
+            />
+            <button class="object-hotspot hotspot-script magnetic" type="button" data-cursor="Script" data-hotspot="script">
+              <span data-i18n="hotspot.script">剧本层</span>
+            </button>
+            <button class="object-hotspot hotspot-shot magnetic" type="button" data-cursor="Shots" data-hotspot="shots">
+              <span data-i18n="hotspot.shots">分镜层</span>
+            </button>
+            <button class="object-hotspot hotspot-model magnetic" type="button" data-cursor="Model" data-hotspot="model">
+              <span data-i18n="hotspot.model">模型交付</span>
+            </button>
+          </figure>
+
           <div class="hero-copy reveal-block">
-            <p class="eyebrow">AI video prompt workflow</p>
-            <h1 id="hero-title">Direct a film from a script prompt.</h1>
-            <p class="hero-subtitle">
+            <p class="eyebrow" data-i18n="hero.eyebrow">AI 视频创作工作流</p>
+            <h1 id="hero-title" data-i18n="hero.title">把剧本变成可导演的影像方案。</h1>
+            <p class="hero-subtitle" data-i18n="hero.subtitle">
               输入剧本，即刻生成分镜提示词、人物三视图、模型队列和制作交付包。
             </p>
             <div class="hero-actions" aria-label="Primary actions">
-              <a class="button primary magnetic" href="#studio" data-cursor="Create">Start creating</a>
-              <a class="button ghost magnetic" href="#workflow" data-cursor="Explore">See the system</a>
+              <a class="button primary magnetic" href="#studio" data-cursor="Create" data-i18n="hero.start">开始创作</a>
+              <a class="button ghost magnetic" href="#workflow" data-cursor="Explore" data-i18n="hero.system">查看流程</a>
             </div>
           </div>
 
           <aside class="hero-hud reveal-block" aria-label="Studio status">
             <div>
-              <span>Live package</span>
+              <span data-i18n="hud.package">实时创作包</span>
               <strong id="hud-shots">9 shots</strong>
             </div>
             <div>
-              <span>Character lock</span>
+              <span data-i18n="hud.characters">角色一致性</span>
               <strong id="hud-characters">3 profiles</strong>
             </div>
             <div>
-              <span>Safety</span>
-              <strong>local only</strong>
+              <span data-i18n="hud.safety">安全机制</span>
+              <strong data-i18n="hud.local">本地生成</strong>
             </div>
           </aside>
         </section>
 
         <section class="studio page-panel" id="studio" aria-labelledby="studio-title" data-theme="light">
           <div class="section-heading reveal-block">
-            <p class="eyebrow">Creation console</p>
-            <h2 id="studio-title">直接在网页里生成创作包</h2>
+            <p class="eyebrow" data-i18n="studio.eyebrow">创作控制台</p>
+            <h2 id="studio-title" data-i18n="studio.title">直接在网页里生成创作包</h2>
           </div>
 
           <div class="studio-grid">
             <form class="script-console reveal-block" id="script-form">
               <div class="console-head">
-                <label for="script-input">Script</label>
+                <label for="script-input" data-i18n="studio.script">剧本</label>
                 <output id="input-meter" for="script-input">0 / 5000</output>
               </div>
               <textarea id="script-input" maxlength="5000" rows="12">第1场：内景 废弃剧院 夜
@@ -106,7 +128,7 @@
 
               <div class="control-grid" aria-label="Prompt controls">
                 <label>
-                  <span>Model</span>
+                  <span data-i18n="control.model">模型</span>
                   <select id="model-target">
                     <option>Sora</option>
                     <option>Runway</option>
@@ -116,7 +138,7 @@
                   </select>
                 </label>
                 <label>
-                  <span>Style</span>
+                  <span data-i18n="control.style">风格</span>
                   <select id="style-preset">
                     <option value="cinematic">Cinematic</option>
                     <option value="documentary">Documentary</option>
@@ -127,7 +149,7 @@
                   </select>
                 </label>
                 <label>
-                  <span>Aspect</span>
+                  <span data-i18n="control.aspect">画幅</span>
                   <select id="aspect-ratio">
                     <option>16:9</option>
                     <option>9:16</option>
@@ -136,7 +158,7 @@
                   </select>
                 </label>
                 <label>
-                  <span>Shot depth</span>
+                  <span data-i18n="control.depth">镜头密度</span>
                   <select id="shot-depth">
                     <option value="balanced">Balanced</option>
                     <option value="high">High detail</option>
@@ -146,17 +168,17 @@
               </div>
 
               <label class="range-field" for="scene-limit">
-                <span>Scene limit</span>
+                <span data-i18n="control.limit">场次上限</span>
                 <input id="scene-limit" type="range" min="1" max="8" value="4" />
                 <output id="scene-limit-output" for="scene-limit">4</output>
               </label>
 
               <div class="action-row">
                 <button class="button primary magnetic" type="submit" data-cursor="Generate">
-                  Generate package
+                  <span data-i18n="action.generate">生成创作包</span>
                 </button>
                 <button class="button ghost magnetic" id="copy-package" type="button" data-cursor="Copy">
-                  Copy prompt pack
+                  <span data-i18n="action.copy">复制提示词包</span>
                 </button>
                 <button class="icon-button magnetic" id="download-md" type="button" aria-label="Download Markdown" data-cursor="MD">
                   MD
@@ -165,19 +187,19 @@
                   CSV
                 </button>
               </div>
-              <p class="status-line" id="status-line" role="status">Ready for a new production pass.</p>
+              <p class="status-line" id="status-line" role="status">已准备好进行新的制作。</p>
             </form>
 
             <section class="output-stage reveal-block" aria-label="Generated creative package">
               <div class="output-top">
                 <div>
-                  <span id="output-model">Sora handoff</span>
+                  <span id="output-model">Sora 交付</span>
                   <strong id="output-count">6 shots</strong>
                 </div>
                 <div class="tab-row" role="tablist" aria-label="Output views">
-                  <button class="tab-button active" type="button" data-panel="shots" role="tab">Shots</button>
-                  <button class="tab-button" type="button" data-panel="characters" role="tab">Characters</button>
-                  <button class="tab-button" type="button" data-panel="package" role="tab">Package</button>
+                  <button class="tab-button active" type="button" data-panel="shots" role="tab" data-i18n="tab.shots">分镜</button>
+                  <button class="tab-button" type="button" data-panel="characters" role="tab" data-i18n="tab.characters">角色</button>
+                  <button class="tab-button" type="button" data-panel="package" role="tab" data-i18n="tab.package">创作包</button>
                 </div>
               </div>
 
@@ -196,87 +218,87 @@
 
         <section class="workflow page-panel" id="workflow" aria-labelledby="workflow-title" data-theme="dark">
           <div class="section-heading reveal-block">
-            <p class="eyebrow">Production map</p>
-            <h2 id="workflow-title">从剧本到模型交付</h2>
+            <p class="eyebrow" data-i18n="workflow.eyebrow">制作地图</p>
+            <h2 id="workflow-title" data-i18n="workflow.title">从剧本到模型交付</h2>
           </div>
           <div class="timeline" aria-label="Workflow steps">
             <article class="timeline-step reveal-block">
               <span>01</span>
-              <h3>Script Intelligence</h3>
-              <p>识别场次、时间、地点、角色和冲突，把松散文本整理成镜头骨架。</p>
+              <h3 data-i18n="workflow.step1.title">剧本识别</h3>
+              <p data-i18n="workflow.step1.body">识别场次、时间、地点、角色和冲突，把松散文本整理成镜头骨架。</p>
             </article>
             <article class="timeline-step reveal-block">
               <span>02</span>
-              <h3>Shot Direction</h3>
-              <p>生成景别、运动、镜头意图、画面层次和模型可读提示词。</p>
+              <h3 data-i18n="workflow.step2.title">分镜导演</h3>
+              <p data-i18n="workflow.step2.body">生成景别、运动、镜头意图、画面层次和模型可读提示词。</p>
             </article>
             <article class="timeline-step reveal-block">
               <span>03</span>
-              <h3>Character Bible</h3>
-              <p>输出三视图提示词、造型规则和角色一致性约束。</p>
+              <h3 data-i18n="workflow.step3.title">角色设定</h3>
+              <p data-i18n="workflow.step3.body">输出三视图提示词、造型规则和角色一致性约束。</p>
             </article>
             <article class="timeline-step reveal-block">
               <span>04</span>
-              <h3>Model Queue</h3>
-              <p>形成 Markdown 创作包和 CSV 队列，方便继续进入视频生成工具。</p>
+              <h3 data-i18n="workflow.step4.title">模型队列</h3>
+              <p data-i18n="workflow.step4.body">形成 Markdown 创作包和 CSV 队列，方便继续进入视频生成工具。</p>
             </article>
           </div>
         </section>
 
         <section class="gallery page-panel" id="gallery" aria-labelledby="gallery-title" data-theme="light">
           <div class="section-heading reveal-block">
-            <p class="eyebrow">Creative systems</p>
-            <h2 id="gallery-title">一个仓库，两个生产系统</h2>
+            <p class="eyebrow" data-i18n="gallery.eyebrow">创意系统</p>
+            <h2 id="gallery-title" data-i18n="gallery.title">一个仓库，两个生产系统</h2>
           </div>
           <div class="gallery-grid">
             <article class="feature-tile poster reveal-block">
-              <p>Poster Workflow</p>
-              <h3>肖像到叙事海报</h3>
-              <span>风格预设 / 画幅 / 模型目标 / 多版本提示词</span>
+              <p data-i18n="gallery.poster.eyebrow">海报工作流</p>
+              <h3 data-i18n="gallery.poster.title">肖像到叙事海报</h3>
+              <span data-i18n="gallery.poster.body">风格预设 / 画幅 / 模型目标 / 多版本提示词</span>
             </article>
             <article class="feature-tile video reveal-block">
-              <p>Video Workflow</p>
-              <h3>剧本到 AI 视频分镜</h3>
-              <span>镜头队列 / 人物三视图 / CSV / 模型交付包</span>
+              <p data-i18n="gallery.video.eyebrow">视频工作流</p>
+              <h3 data-i18n="gallery.video.title">剧本到 AI 视频分镜</h3>
+              <span data-i18n="gallery.video.body">镜头队列 / 人物三视图 / CSV / 模型交付包</span>
             </article>
             <article class="feature-tile qa reveal-block">
-              <p>Safety System</p>
-              <h3>生成前风险检查</h3>
-              <span>本地生成 / 无数据上传 / 输入清理 / 提示词完整度</span>
+              <p data-i18n="gallery.qa.eyebrow">安全系统</p>
+              <h3 data-i18n="gallery.qa.title">生成前风险检查</h3>
+              <span data-i18n="gallery.qa.body">本地生成 / 无数据上传 / 输入清理 / 提示词完整度</span>
             </article>
           </div>
         </section>
 
         <section class="docs page-panel" id="docs" aria-labelledby="docs-title" data-theme="dark">
           <div class="section-heading reveal-block">
-            <p class="eyebrow">Open source ready</p>
-            <h2 id="docs-title">面向社区的规范入口</h2>
+            <p class="eyebrow" data-i18n="docs.eyebrow">开源社区格式</p>
+            <h2 id="docs-title" data-i18n="docs.title">面向社区的规范入口</h2>
           </div>
           <div class="docs-grid">
             <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/video-workflow.md" target="_blank" rel="noreferrer" data-cursor="Open">
               <span>01</span>
               <strong>Video Workflow</strong>
-              <small>剧本识别、分镜、角色三视图</small>
+              <small data-i18n="docs.video">剧本识别、分镜、角色三视图</small>
             </a>
             <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/poster-workflow.md" target="_blank" rel="noreferrer" data-cursor="Open">
               <span>02</span>
               <strong>Poster Workflow</strong>
-              <small>人物海报提示词生产</small>
+              <small data-i18n="docs.poster">人物海报提示词生产</small>
             </a>
             <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/prompt-quality-guide.md" target="_blank" rel="noreferrer" data-cursor="Open">
               <span>03</span>
               <strong>Prompt Quality</strong>
-              <small>质量模式和模型选择</small>
+              <small data-i18n="docs.quality">质量模式和模型选择</small>
             </a>
             <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml" target="_blank" rel="noreferrer" data-cursor="CI">
               <span>04</span>
               <strong>CI Status</strong>
-              <small>自动测试和安全检查</small>
+              <small data-i18n="docs.ci">自动测试和安全检查</small>
             </a>
           </div>
         </section>
       </main>
     </div>
-    <script src="./app.js?v=20260509-ui2" defer></script>
+    <script src="./app.js?v=20260509-luxe1" defer></script>
   </body>
 </html>
