@@ -59,8 +59,12 @@ jobs:
           test -f site/index.html
           test -f site/styles.css
           test -f site/app.js
+          test -f site/assets/hero-workbench.svg
           grep -q "Rufo AI Workflow Studio" site/index.html
           grep -q "Content-Security-Policy" site/index.html
+          grep -q "language-switch" site/index.html
+          grep -q "data-i18n" site/index.html
+          grep -q "hero-object-stage" site/index.html
           grep -q "local-only prompt workbench" site/README.md
           node --check site/app.js
           ! grep -R "innerHTML\\|eval(\\|new Function\\|document.write\\|https://esm.sh" site
