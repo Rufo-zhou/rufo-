@@ -7,6 +7,8 @@ A runnable Python workflow that turns a screenplay or story draft into:
   - character three-view reference prompts
   - AI video storyboard prompts
   - model-ready prompt package
+  - copy-ready model prompt queue
+  - CSV shot queue
   - QA report
 
 Run:
@@ -16,6 +18,8 @@ Run:
 from __future__ import annotations
 
 import argparse
+import csv
+import io
 import json
 import os
 import re
@@ -40,7 +44,10 @@ MAX_CHARACTERS = 12
 SCENE_SUMMARY_CHARS = 260
 
 CONTROL_CHAR_PATTERN = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
-API_KEY_PATTERN = re.compile(r"\b(?:sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9_]{12,}|xox[baprs]-[A-Za-z0-9-]{12,})")
+API_KEY_PATTERN = re.compile(
+    r"\b(?:sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9_]{12,}|github_pat_[A-Za-z0-9_]{12,}|"
+    r"xox[baprs]-[A-Za-z0-9-]{12,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{20,})"
+)
 SPEAKER_PATTERN = re.compile(r"^\s*([\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9_·\-\s]{0,24})\s*[：:]\s*(\S.*)$")
 SCENE_PATTERNS = [
     re.compile(r"^\s*(第[\u4e00-\u9fff0-9]+场|场景\s*[\u4e00-\u9fff0-9]+|镜头\s*[\u4e00-\u9fff0-9]+)\s*[：:.\-]?\s*(.*)$", re.I),
@@ -78,6 +85,7 @@ STOP_CHARACTER_NAMES = {
 NARRATOR_NAMES = {"旁白", "narrator", "voiceover", "voice over", "v.o.", "vo"}
 SUPPORTED_TARGET_MODELS = {"general", "sora", "runway", "kling", "pika", "luma"}
 SUPPORTED_QUALITY_MODES = {"fast", "balanced", "high"}
+SUPPORTED_CREATIVE_STYLES = {"cinematic", "realistic", "anime", "documentary", "commercial", "fantasy"}
 
 MODEL_PROFILES = {
     "general": {
@@ -163,6 +171,39 @@ SHOT_LIBRARY = {
     },
 }
 
+CREATIVE_STYLE_PROFILES = {
+    "cinematic": {
+        "label": "cinematic narrative",
+        "visual_direction": "premium film language, controlled color grade, dramatic but natural lighting",
+        "production_bias": "strong story readability and emotional continuity",
+    },
+    "realistic": {
+        "label": "realistic live action",
+        "visual_direction": "natural lensing, believable locations, practical lighting, grounded human behavior",
+        "production_bias": "physical realism, stable character identity and restrained camera movement",
+    },
+    "anime": {
+        "label": "anime key animation",
+        "visual_direction": "clean anime composition, expressive poses, painterly backgrounds, luminous highlights",
+        "production_bias": "clear silhouette, readable action, emotionally heightened timing",
+    },
+    "documentary": {
+        "label": "documentary realism",
+        "visual_direction": "observational camera, available light, authentic texture, imperfect lived-in detail",
+        "production_bias": "truthful pacing, human gestures, minimal stylized exaggeration",
+    },
+    "commercial": {
+        "label": "commercial spot",
+        "visual_direction": "clean premium imagery, instantly readable subject, polished lighting, strong hook",
+        "production_bias": "fast comprehension, brand-safe clarity and concise visual beats",
+    },
+    "fantasy": {
+        "label": "fantasy cinematic",
+        "visual_direction": "mythic atmosphere, elegant worldbuilding, magical realism, rich environmental detail",
+        "production_bias": "coherent fantasy rules, readable motion and restrained spectacle",
+    },
+}
+
 
 # =========================
 # Data Models
@@ -178,6 +219,7 @@ class ProjectInput:
     target_model: str = "general"
     quality_mode: str = "balanced"
     aspect_ratio: str = "16:9"
+    creative_style: str = "cinematic"
     max_scenes: int = MAX_SCENES
     max_characters: int = MAX_CHARACTERS
 
@@ -319,6 +361,14 @@ def validate_quality_mode(quality_mode: str) -> str:
     if normalized not in SUPPORTED_QUALITY_MODES:
         allowed = ", ".join(sorted(SUPPORTED_QUALITY_MODES))
         raise ValueError(f"Unsupported quality mode: {quality_mode}. Allowed: {allowed}")
+    return normalized
+
+
+def validate_creative_style(creative_style: str) -> str:
+    normalized = creative_style.strip().lower()
+    if normalized not in SUPPORTED_CREATIVE_STYLES:
+        allowed = ", ".join(sorted(SUPPORTED_CREATIVE_STYLES))
+        raise ValueError(f"Unsupported creative style: {creative_style}. Allowed: {allowed}")
     return normalized
 
 
@@ -709,23 +759,27 @@ def build_shot_prompt(
     target_model: str,
     quality_mode: str,
     aspect_ratio: str,
+    creative_style: str,
 ) -> Dict[str, Any]:
     character_names = ", ".join(f"{char['character_id']} {char['name']}" for char in characters) or "no visible character"
     tone_text = ", ".join(tone)
     model_profile = MODEL_PROFILES[target_model]
     quality_profile = QUALITY_PROFILES[quality_mode]
+    style_profile = CREATIVE_STYLE_PROFILES[creative_style]
     shot_profile = SHOT_LIBRARY[shot_type]
     prompt = compact_text(
         f"""
         AI video storyboard prompt for {model_profile['label']}, aspect ratio {aspect_ratio}, {genre}, tone {tone_text}.
+        Creative style: {style_profile['label']} - {style_profile['visual_direction']}.
         Scene {scene['scene_id']} {scene['title']}, location {scene['location']}, time {scene['time_of_day']}.
         Characters: {character_names}. Story beat: {scene['summary']}.
         Shot type: {shot_type}. Purpose: {shot_profile['purpose']}. Camera: {shot_profile['camera']}.
         Lighting: cinematic natural light, coherent shadows, scene-matched color temperature.
         Target model note: {model_profile['prompt_hint']}. Motion: {model_profile['motion_bias']}.
         Quality mode: {quality_profile['label']} - {quality_profile['description']}
+        Production bias: {style_profile['production_bias']}.
         Continuity: keep character identity, costume, props and screen direction consistent.
-        Output: realistic cinematic video, high detail, no subtitles, no watermark, no logo.
+        Output: high-detail {style_profile['label']} video, no subtitles, no watermark, no logo.
         """,
         1200,
     )
@@ -738,10 +792,23 @@ def build_shot_prompt(
         "target_model": target_model,
         "quality_mode": quality_mode,
         "aspect_ratio": aspect_ratio,
+        "creative_style": creative_style,
         "characters": characters,
         "prompt": prompt,
         "negative_prompt": "low quality, flicker, inconsistent character, face morphing, extra fingers, broken hands, unreadable text, watermark, logo, random cuts, jumpy camera",
+        "production_note": build_shot_production_note(shot_type, target_model, creative_style),
     }
+
+
+def build_shot_production_note(shot_type: str, target_model: str, creative_style: str) -> str:
+    return compact_text(
+        f"""
+        Generate this {shot_type} shot with {MODEL_PROFILES[target_model]['label']} settings in
+        {CREATIVE_STYLE_PROFILES[creative_style]['label']} style. Keep the first usable seed for continuity,
+        then only adjust motion, camera speed or lighting if QA fails.
+        """,
+        360,
+    )
 
 
 def build_storyboard(
@@ -752,6 +819,7 @@ def build_storyboard(
     target_model: str,
     quality_mode: str,
     aspect_ratio: str,
+    creative_style: str,
 ) -> List[Dict[str, Any]]:
     storyboard = []
     for scene in scenes:
@@ -767,6 +835,7 @@ def build_storyboard(
                 target_model,
                 quality_mode,
                 aspect_ratio,
+                creative_style,
             )
             for index, shot_type in enumerate(QUALITY_PROFILES[quality_mode]["shot_types"], start=1)
         ]
@@ -868,6 +937,7 @@ def render_production_brief_markdown(
         f"- Target model: {style.get('target_model', project.target_model)}",
         f"- Quality mode: {style.get('quality_mode', project.quality_mode)}",
         f"- Aspect ratio: {style.get('aspect_ratio', project.aspect_ratio)}",
+        f"- Creative style: {style.get('creative_style', project.creative_style)}",
         f"- Genre: {source.get('genre', script_analysis.get('genre', 'unknown'))}",
         f"- Tone: {', '.join(source.get('tone', script_analysis.get('tone', [])))}",
         f"- Scenes: {script_analysis.get('scene_count', 0)}",
@@ -880,6 +950,7 @@ def render_production_brief_markdown(
         "",
         f"- Prompt note: {style.get('target_model_profile', {}).get('prompt_hint', '')}",
         f"- Motion bias: {style.get('target_model_profile', {}).get('motion_bias', '')}",
+        f"- Style direction: {style.get('creative_style_profile', {}).get('visual_direction', '')}",
         "",
         "## Handoff Order",
         "",
@@ -897,6 +968,82 @@ def render_production_brief_markdown(
     for scene in storyboard_prompts.get("storyboard", []):
         lines.append(f"- {scene['scene_id']} {scene['scene_title']}: {len(scene.get('shots', []))} shots")
     return "\n".join(lines).strip() + "\n"
+
+
+def render_model_prompt_queue_markdown(video_package: Dict[str, Any]) -> str:
+    style = video_package.get("global_style_bible", {})
+    lines = [
+        "# Model Prompt Queue",
+        "",
+        f"- Target model: {style.get('target_model', 'unknown')}",
+        f"- Creative style: {style.get('creative_style', 'unknown')}",
+        f"- Aspect ratio: {style.get('aspect_ratio', 'unknown')}",
+        "",
+        "按顺序复制每个镜头提示词到视频模型。先生成角色参考，再按 shot_id 逐条生成视频镜头。",
+        "",
+    ]
+    for shot in video_package.get("shot_prompts", []):
+        character_names = ", ".join(f"{char['character_id']} {char['name']}" for char in shot.get("characters", []))
+        lines.extend(
+            [
+                f"## {shot['shot_id']} {shot['shot_type']}",
+                "",
+                f"- Duration: {shot['duration_seconds']}s",
+                f"- Characters: {character_names or 'no visible character'}",
+                f"- Camera: {shot['camera']}",
+                f"- Production note: {shot.get('production_note', '')}",
+                "",
+                "```text",
+                shot["prompt"],
+                "```",
+                "",
+                "Negative prompt:",
+                "",
+                "```text",
+                shot["negative_prompt"],
+                "```",
+                "",
+            ]
+        )
+    return "\n".join(lines).strip() + "\n"
+
+
+def render_shot_prompt_csv(video_package: Dict[str, Any]) -> str:
+    buffer = io.StringIO()
+    fieldnames = [
+        "shot_id",
+        "scene_id",
+        "shot_type",
+        "duration_seconds",
+        "target_model",
+        "creative_style",
+        "aspect_ratio",
+        "characters",
+        "camera",
+        "prompt",
+        "negative_prompt",
+        "production_note",
+    ]
+    writer = csv.DictWriter(buffer, fieldnames=fieldnames)
+    writer.writeheader()
+    for shot in video_package.get("shot_prompts", []):
+        writer.writerow(
+            {
+                "shot_id": shot.get("shot_id", ""),
+                "scene_id": shot.get("scene_id", ""),
+                "shot_type": shot.get("shot_type", ""),
+                "duration_seconds": shot.get("duration_seconds", ""),
+                "target_model": shot.get("target_model", ""),
+                "creative_style": shot.get("creative_style", ""),
+                "aspect_ratio": shot.get("aspect_ratio", ""),
+                "characters": "; ".join(f"{char['character_id']} {char['name']}" for char in shot.get("characters", [])),
+                "camera": shot.get("camera", ""),
+                "prompt": shot.get("prompt", ""),
+                "negative_prompt": shot.get("negative_prompt", ""),
+                "production_note": shot.get("production_note", ""),
+            }
+        )
+    return buffer.getvalue()
 
 
 # =========================
@@ -980,12 +1127,14 @@ class StoryboardPromptAgent(BaseAgent):
             target_model=project.target_model,
             quality_mode=project.quality_mode,
             aspect_ratio=project.aspect_ratio,
+            creative_style=project.creative_style,
         )
         output = {
             "storyboard_count": len(storyboard),
             "target_model": project.target_model,
             "quality_mode": project.quality_mode,
             "aspect_ratio": project.aspect_ratio,
+            "creative_style": project.creative_style,
             "target_models": ["Sora", "Runway", "Kling", "Pika", "Luma", "可兼容其他 AI 视频模型"],
             "storyboard": storyboard,
         }
@@ -1025,7 +1174,9 @@ class VideoPackageAgent(BaseAgent):
                 "quality_mode": project.quality_mode,
                 "quality_profile": QUALITY_PROFILES[project.quality_mode],
                 "aspect_ratio": project.aspect_ratio,
-                "visual_style": "realistic cinematic, coherent color palette, consistent production design",
+                "creative_style": project.creative_style,
+                "creative_style_profile": CREATIVE_STYLE_PROFILES[project.creative_style],
+                "visual_style": CREATIVE_STYLE_PROFILES[project.creative_style]["visual_direction"],
                 "camera_language": "motivated movement, readable geography, no random cuts",
                 "continuity_rules": [
                     "Use character_id and identity_seed in every shot involving that character.",
@@ -1067,6 +1218,7 @@ class VideoPackageAgent(BaseAgent):
                 "target_model": project.target_model,
                 "quality_mode": project.quality_mode,
                 "aspect_ratio": project.aspect_ratio,
+                "creative_style": project.creative_style,
             },
         }
         return self.result(output)
@@ -1093,6 +1245,10 @@ class QualityAssuranceAgent(BaseAgent):
             "has_three_view_prompts": all(ref.get("three_view_prompt") for ref in character_refs),
             "has_storyboard_prompts": len(shot_prompts) >= max(1, script_analysis.get("scene_count", 1)),
             "has_negative_prompts": all(shot.get("negative_prompt") for shot in shot_prompts),
+            "has_camera_and_motion": all("Camera:" in shot.get("prompt", "") and "Motion:" in shot.get("prompt", "") for shot in shot_prompts),
+            "has_creative_style": bool(style_bible.get("creative_style_profile")),
+            "prompts_within_safe_length": all(len(shot.get("prompt", "")) <= 1400 for shot in shot_prompts),
+            "has_production_notes": all(shot.get("production_note") for shot in shot_prompts),
             "has_continuity_rules": bool(style_bible.get("continuity_rules")),
             "has_target_model_profile": bool(style_bible.get("target_model_profile")),
             "has_aspect_ratio": bool(style_bible.get("aspect_ratio")),
@@ -1106,6 +1262,10 @@ class QualityAssuranceAgent(BaseAgent):
             suggestions.append("如果剧本较长，建议用“第 1 场 / 场景 1 / INT. / EXT.”标明场次。")
         if character_profiles.get("character_count", 0) == 1:
             suggestions.append("如果有多位角色，建议使用“角色名：台词”的格式帮助识别。")
+        if not checks["has_camera_and_motion"]:
+            suggestions.append("部分镜头缺少镜头运动或运动提示，建议补充 Camera / Motion 约束。")
+        if not checks["prompts_within_safe_length"]:
+            suggestions.append("部分镜头提示词过长，建议切换 fast 或减少单场信息量。")
         status = "pass" if score >= 0.85 else "needs_revision"
         if not checks["no_detected_secret_tokens"]:
             status = "needs_revision"
@@ -1214,6 +1374,14 @@ class VideoPromptWorkflow:
         )
         saved_files.append(str(production_brief_md))
 
+        prompt_queue_md = output_dir / "model_prompt_queue.md"
+        save_text(prompt_queue_md, render_model_prompt_queue_markdown(video_package.output))
+        saved_files.append(str(prompt_queue_md))
+
+        prompt_queue_csv = output_dir / "shot_prompt_queue.csv"
+        save_text(prompt_queue_csv, render_shot_prompt_csv(video_package.output))
+        saved_files.append(str(prompt_queue_csv))
+
         package_path = output_dir / "video_workflow_result.json"
         result = VideoPromptWorkflowResult(
             project=project,
@@ -1254,6 +1422,12 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
         help="fast creates 1 shot per scene, balanced creates 3, high creates 5",
     )
     parser.add_argument("--aspect-ratio", default="16:9", help="Video aspect ratio, e.g. 16:9 or 9:16")
+    parser.add_argument(
+        "--creative-style",
+        choices=sorted(SUPPORTED_CREATIVE_STYLES),
+        default="cinematic",
+        help="Creative style profile for video prompts",
+    )
     parser.add_argument("--max-scenes", type=int, default=MAX_SCENES, help="Maximum scenes to process")
     parser.add_argument("--max-characters", type=int, default=MAX_CHARACTERS, help="Maximum characters to profile")
     parser.add_argument("--use-openai", action="store_true", help="Enable optional OpenAI JSON enhancement")
@@ -1275,6 +1449,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             target_model=validate_target_model(args.target_model),
             quality_mode=validate_quality_mode(args.quality_mode),
             aspect_ratio=validate_aspect_ratio(args.aspect_ratio),
+            creative_style=validate_creative_style(args.creative_style),
             max_scenes=validate_limit(args.max_scenes, name="max-scenes", minimum=1, maximum=MAX_SCENES),
             max_characters=validate_limit(args.max_characters, name="max-characters", minimum=1, maximum=MAX_CHARACTERS),
         )
@@ -1289,6 +1464,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         print(f"Target model: {result.project.target_model}")
         print(f"Quality mode: {result.project.quality_mode}")
         print(f"Aspect ratio: {result.project.aspect_ratio}")
+        print(f"Creative style: {result.project.creative_style}")
         print(f"Shot prompts: {result.qa_report.output.get('shot_prompt_count', 0)}")
         print("\nSaved files:")
         for file in result.saved_files:
