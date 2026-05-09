@@ -7,6 +7,7 @@
 | 分类 | 文件 | 内容 |
 | --- | --- | --- |
 | 使用说明 | [usage.md](usage.md) | 安装、运行参数、输出文件、OpenAI API 模式 |
+| 海报工作流 | [poster-workflow.md](poster-workflow.md) | 肖像到叙事海报提示词、风格预设、模型目标、变体方向 |
 | 视频工作流 | [video-workflow.md](video-workflow.md) | 剧本识别、分镜提示词、人物三视图提示词 |
 | 质量指南 | [prompt-quality-guide.md](prompt-quality-guide.md) | 模型选择、速度/质量模式、提示词质量检查 |
 | 架构说明 | [architecture.md](architecture.md) | 多 Agent 流程、数据流和核心模块职责 |
