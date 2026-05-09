@@ -4,173 +4,271 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <meta
       name="description"
-      content="Rufo AI Workflow Studio turns scripts and creative ideas into cinematic AI video prompts, storyboard packages, character turnarounds, and poster prompt briefs."
+      content="Rufo AI Workflow Studio turns scripts into storyboard prompts, character turnarounds, model handoff queues, and production-ready AI video prompt packages."
     />
     <title>Rufo AI Workflow Studio</title>
-    <link rel="preconnect" href="https://esm.sh" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <div class="cursor-orbit" id="cursor-orbit" aria-hidden="true">
+      <span class="cursor-dot"></span>
+      <span class="cursor-ring"></span>
+      <span class="cursor-label" id="cursor-label">Studio</span>
+    </div>
+    <div class="scroll-meter" aria-hidden="true"><span id="scroll-meter"></span></div>
+
     <div class="site-shell">
       <header class="topbar" aria-label="Primary">
-        <a class="brand" href="#hero" aria-label="Rufo AI Workflow Studio">
+        <a class="brand magnetic" href="#hero" aria-label="Rufo AI Workflow Studio" data-cursor="Home">
           <span class="brand-mark" aria-hidden="true"></span>
           <span>Rufo Studio</span>
         </a>
         <nav class="nav-links" aria-label="Website sections">
-          <a href="#workflow">Workflow</a>
-          <a href="#demo">Demo</a>
-          <a href="#gallery">Gallery</a>
-          <a href="#docs">Docs</a>
+          <a class="magnetic" href="#studio" data-cursor="Create">Studio</a>
+          <a class="magnetic" href="#workflow" data-cursor="Map">Flow</a>
+          <a class="magnetic" href="#gallery" data-cursor="Systems">Systems</a>
+          <a class="magnetic" href="#docs" data-cursor="Docs">Docs</a>
         </nav>
-        <a class="nav-cta" href="https://github.com/Rufo-zhou/rufo-" target="_blank" rel="noreferrer">GitHub</a>
+        <a
+          class="nav-cta magnetic"
+          href="https://github.com/Rufo-zhou/rufo-"
+          target="_blank"
+          rel="noreferrer"
+          data-cursor="GitHub"
+        >
+          GitHub
+        </a>
       </header>
 
       <main>
-        <section class="hero" id="hero" aria-labelledby="hero-title">
+        <section class="hero page-panel" id="hero" aria-labelledby="hero-title" data-theme="dark">
           <canvas id="studio-canvas" aria-hidden="true"></canvas>
-          <canvas id="fallback-canvas" aria-hidden="true"></canvas>
-          <div class="probe" id="probe" aria-hidden="true">
-            <span></span>
+          <div class="frame-system" aria-hidden="true">
+            <span class="corner corner-a"></span>
+            <span class="corner corner-b"></span>
+            <span class="corner corner-c"></span>
+            <span class="corner corner-d"></span>
+            <span class="scanline"></span>
           </div>
-          <div class="hero-copy">
+
+          <div class="hero-copy reveal-block">
             <p class="eyebrow">AI video prompt workflow</p>
-            <h1 id="hero-title">Turn scripts into cinematic prompt systems.</h1>
+            <h1 id="hero-title">Direct a film from a script prompt.</h1>
             <p class="hero-subtitle">
-              把剧本、角色和视觉方向整理成 AI 视频模型可用的分镜提示词、人物三视图和制作交付包。
+              输入剧本，即刻生成分镜提示词、人物三视图、模型队列和制作交付包。
             </p>
             <div class="hero-actions" aria-label="Primary actions">
-              <a class="button primary" href="#demo">Try the studio</a>
-              <a class="button secondary" href="#workflow">View workflow</a>
+              <a class="button primary magnetic" href="#studio" data-cursor="Create">Start creating</a>
+              <a class="button ghost magnetic" href="#workflow" data-cursor="Explore">See the system</a>
             </div>
           </div>
-          <aside class="hero-panel" aria-label="Current generation status">
-            <div class="panel-row">
-              <span>Scene parsing</span>
-              <strong>15 shots</strong>
+
+          <aside class="hero-hud reveal-block" aria-label="Studio status">
+            <div>
+              <span>Live package</span>
+              <strong id="hud-shots">9 shots</strong>
             </div>
-            <div class="panel-row">
+            <div>
               <span>Character lock</span>
-              <strong>3-view ready</strong>
+              <strong id="hud-characters">3 profiles</strong>
             </div>
-            <div class="panel-row">
-              <span>Model target</span>
-              <strong>Sora / Runway / Kling</strong>
+            <div>
+              <span>Safety</span>
+              <strong>local only</strong>
             </div>
           </aside>
-          <div class="scroll-signal" aria-hidden="true"></div>
         </section>
 
-        <section class="workflow band" id="workflow" aria-labelledby="workflow-title">
-          <div class="section-heading">
-            <p class="eyebrow">Production map</p>
-            <h2 id="workflow-title">从灵感到可执行镜头包</h2>
+        <section class="studio page-panel" id="studio" aria-labelledby="studio-title" data-theme="light">
+          <div class="section-heading reveal-block">
+            <p class="eyebrow">Creation console</p>
+            <h2 id="studio-title">直接在网页里生成创作包</h2>
           </div>
-          <div class="workflow-grid">
-            <article class="workflow-step">
+
+          <div class="studio-grid">
+            <form class="script-console reveal-block" id="script-form">
+              <div class="console-head">
+                <label for="script-input">Script</label>
+                <output id="input-meter" for="script-input">0 / 5000</output>
+              </div>
+              <textarea id="script-input" maxlength="5000" rows="12">第1场：内景 废弃剧院 夜
+林澈推开沉重的门，旧聚光灯突然亮起。
+墙面浮现一行字：把最后一幕拍完。
+
+第2场：舞台中央 夜
+她站在光里，听见另一个自己的声音从空座位传来。
+镜头缓慢靠近，她抬头看向观众席。</textarea>
+
+              <div class="control-grid" aria-label="Prompt controls">
+                <label>
+                  <span>Model</span>
+                  <select id="model-target">
+                    <option>Sora</option>
+                    <option>Runway</option>
+                    <option>Kling</option>
+                    <option>Pika</option>
+                    <option>Luma</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Style</span>
+                  <select id="style-preset">
+                    <option value="cinematic">Cinematic</option>
+                    <option value="documentary">Documentary</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="anime">Anime</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="noir">Noir</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Aspect</span>
+                  <select id="aspect-ratio">
+                    <option>16:9</option>
+                    <option>9:16</option>
+                    <option>1:1</option>
+                    <option>2.39:1</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Shot depth</span>
+                  <select id="shot-depth">
+                    <option value="balanced">Balanced</option>
+                    <option value="high">High detail</option>
+                    <option value="fast">Fast draft</option>
+                  </select>
+                </label>
+              </div>
+
+              <label class="range-field" for="scene-limit">
+                <span>Scene limit</span>
+                <input id="scene-limit" type="range" min="1" max="8" value="4" />
+                <output id="scene-limit-output" for="scene-limit">4</output>
+              </label>
+
+              <div class="action-row">
+                <button class="button primary magnetic" type="submit" data-cursor="Generate">
+                  Generate package
+                </button>
+                <button class="button ghost magnetic" id="copy-package" type="button" data-cursor="Copy">
+                  Copy prompt pack
+                </button>
+                <button class="icon-button magnetic" id="download-md" type="button" aria-label="Download Markdown" data-cursor="MD">
+                  MD
+                </button>
+                <button class="icon-button magnetic" id="download-csv" type="button" aria-label="Download CSV" data-cursor="CSV">
+                  CSV
+                </button>
+              </div>
+              <p class="status-line" id="status-line" role="status">Ready for a new production pass.</p>
+            </form>
+
+            <section class="output-stage reveal-block" aria-label="Generated creative package">
+              <div class="output-top">
+                <div>
+                  <span id="output-model">Sora handoff</span>
+                  <strong id="output-count">6 shots</strong>
+                </div>
+                <div class="tab-row" role="tablist" aria-label="Output views">
+                  <button class="tab-button active" type="button" data-panel="shots" role="tab">Shots</button>
+                  <button class="tab-button" type="button" data-panel="characters" role="tab">Characters</button>
+                  <button class="tab-button" type="button" data-panel="package" role="tab">Package</button>
+                </div>
+              </div>
+
+              <div class="output-panel active" id="panel-shots" role="tabpanel">
+                <div class="shot-stack" id="shot-stack"></div>
+              </div>
+              <div class="output-panel" id="panel-characters" role="tabpanel">
+                <div class="character-grid" id="character-grid"></div>
+              </div>
+              <div class="output-panel" id="panel-package" role="tabpanel">
+                <pre class="package-output" id="package-output"></pre>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="workflow page-panel" id="workflow" aria-labelledby="workflow-title" data-theme="dark">
+          <div class="section-heading reveal-block">
+            <p class="eyebrow">Production map</p>
+            <h2 id="workflow-title">从剧本到模型交付</h2>
+          </div>
+          <div class="timeline" aria-label="Workflow steps">
+            <article class="timeline-step reveal-block">
               <span>01</span>
               <h3>Script Intelligence</h3>
-              <p>识别场次、时间、地点、角色和关键情绪，把松散文本整理成清晰创作骨架。</p>
+              <p>识别场次、时间、地点、角色和冲突，把松散文本整理成镜头骨架。</p>
             </article>
-            <article class="workflow-step">
+            <article class="timeline-step reveal-block">
               <span>02</span>
-              <h3>Shot Design</h3>
-              <p>自动拆出镜头、景别、运动、画幅和节奏，让视频模型获得明确的拍摄语言。</p>
+              <h3>Shot Direction</h3>
+              <p>生成景别、运动、镜头意图、画面层次和模型可读提示词。</p>
             </article>
-            <article class="workflow-step">
+            <article class="timeline-step reveal-block">
               <span>03</span>
-              <h3>Identity Bible</h3>
-              <p>沉淀人物三视图、服装、面部特征和一致性约束，减少角色漂移。</p>
+              <h3>Character Bible</h3>
+              <p>输出三视图提示词、造型规则和角色一致性约束。</p>
             </article>
-            <article class="workflow-step">
+            <article class="timeline-step reveal-block">
               <span>04</span>
-              <h3>Model Handoff</h3>
-              <p>输出 Markdown、CSV 和模型提示词队列，方便直接进入 Sora、Runway、Kling 等工具。</p>
+              <h3>Model Queue</h3>
+              <p>形成 Markdown 创作包和 CSV 队列，方便继续进入视频生成工具。</p>
             </article>
           </div>
         </section>
 
-        <section class="demo band dark" id="demo" aria-labelledby="demo-title">
-          <div class="section-heading">
-            <p class="eyebrow">Interactive sample</p>
-            <h2 id="demo-title">把一段剧本变成分镜提示词</h2>
-          </div>
-          <div class="demo-layout">
-            <form class="script-console" id="script-form">
-              <label for="script-input">Script input</label>
-              <textarea id="script-input" rows="10">夜晚，废弃剧院。
-林澈推开沉重的门，舞台中央的旧聚光灯突然亮起。
-她看见墙面上浮现出一行字：把最后一幕拍完。</textarea>
-              <div class="control-row" role="group" aria-label="Model target">
-                <button class="segmented active" type="button" data-model="Sora">Sora</button>
-                <button class="segmented" type="button" data-model="Runway">Runway</button>
-                <button class="segmented" type="button" data-model="Kling">Kling</button>
-              </div>
-              <div class="control-row split">
-                <label class="switch">
-                  <input id="quality-toggle" type="checkbox" checked />
-                  <span>High quality</span>
-                </label>
-                <button class="button primary compact" type="submit">Generate</button>
-              </div>
-            </form>
-            <div class="output-stage" aria-live="polite">
-              <div class="output-header">
-                <span id="output-model">Sora handoff</span>
-                <strong id="output-count">3 shots</strong>
-              </div>
-              <div class="shot-stack" id="shot-stack"></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="gallery band" id="gallery" aria-labelledby="gallery-title">
-          <div class="section-heading">
-            <p class="eyebrow">Creative packages</p>
-            <h2 id="gallery-title">一个仓库，两个创作系统</h2>
+        <section class="gallery page-panel" id="gallery" aria-labelledby="gallery-title" data-theme="light">
+          <div class="section-heading reveal-block">
+            <p class="eyebrow">Creative systems</p>
+            <h2 id="gallery-title">一个仓库，两个生产系统</h2>
           </div>
           <div class="gallery-grid">
-            <article class="feature-tile poster">
+            <article class="feature-tile poster reveal-block">
               <p>Poster Workflow</p>
               <h3>肖像到叙事海报</h3>
               <span>风格预设 / 画幅 / 模型目标 / 多版本提示词</span>
             </article>
-            <article class="feature-tile video">
+            <article class="feature-tile video reveal-block">
               <p>Video Workflow</p>
               <h3>剧本到 AI 视频分镜</h3>
               <span>镜头队列 / 人物三视图 / CSV / 模型交付包</span>
             </article>
-            <article class="feature-tile qa">
-              <p>Quality System</p>
-              <h3>生成前质量检查</h3>
-              <span>安全输入 / 提示词完整度 / 风格一致性 / 快速模式</span>
+            <article class="feature-tile qa reveal-block">
+              <p>Safety System</p>
+              <h3>生成前风险检查</h3>
+              <span>本地生成 / 无数据上传 / 输入清理 / 提示词完整度</span>
             </article>
           </div>
         </section>
 
-        <section class="docs band dark" id="docs" aria-labelledby="docs-title">
-          <div class="section-heading">
+        <section class="docs page-panel" id="docs" aria-labelledby="docs-title" data-theme="dark">
+          <div class="section-heading reveal-block">
             <p class="eyebrow">Open source ready</p>
             <h2 id="docs-title">面向社区的规范入口</h2>
           </div>
           <div class="docs-grid">
-            <a href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/video-workflow.md" target="_blank" rel="noreferrer">
+            <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/video-workflow.md" target="_blank" rel="noreferrer" data-cursor="Open">
               <span>01</span>
               <strong>Video Workflow</strong>
               <small>剧本识别、分镜、角色三视图</small>
             </a>
-            <a href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/poster-workflow.md" target="_blank" rel="noreferrer">
+            <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/poster-workflow.md" target="_blank" rel="noreferrer" data-cursor="Open">
               <span>02</span>
               <strong>Poster Workflow</strong>
               <small>人物海报提示词生产</small>
             </a>
-            <a href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/prompt-quality-guide.md" target="_blank" rel="noreferrer">
+            <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/blob/main/docs/prompt-quality-guide.md" target="_blank" rel="noreferrer" data-cursor="Open">
               <span>03</span>
               <strong>Prompt Quality</strong>
               <small>质量模式和模型选择</small>
             </a>
-            <a href="https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml" target="_blank" rel="noreferrer">
+            <a class="doc-link magnetic" href="https://github.com/Rufo-zhou/rufo-/actions/workflows/python-ci.yml" target="_blank" rel="noreferrer" data-cursor="CI">
               <span>04</span>
               <strong>CI Status</strong>
               <small>自动测试和安全检查</small>
