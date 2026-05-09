@@ -13,11 +13,13 @@ python3 -m py_compile script_to_video_prompt_workflow.py
 
 ```bash
 printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=' | base64 -d > ci.png
-python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --out outputs/ci
+python3 multi_agent_poster_system.py --image ci.png --theme ci-smoke --style-preset cinematic --model-target sdxl --quality-mode high --variations 2 --out outputs/ci
 test -f outputs/ci/pipeline_result.json
-python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --out outputs/video-ci
+test -f outputs/ci/poster_prompt_package.md
+python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --creative-style cinematic --out outputs/video-ci
 test -f outputs/video-ci/video_workflow_result.json
-python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model sora --aspect-ratio 9:16 --out outputs/video-high-ci
+test -f outputs/video-ci/model_prompt_queue.md
+python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model sora --creative-style documentary --aspect-ratio 9:16 --out outputs/video-high-ci
 test -f outputs/video-high-ci/production_brief.md
 ```
 
@@ -30,7 +32,7 @@ GitHub Actions 位于 `.github/workflows/python-ci.yml`，当前会执行：
 - 视频工作流示例剧本 smoke test
 - 视频工作流快速模式和高质量模式检查
 - 敏感 token、异常扩展名和参数校验检查
-- `pipeline_result.json` 和 `video_workflow_result.json` 输出检查
+- `pipeline_result.json`、`poster_prompt_package.md`、`video_workflow_result.json`、`model_prompt_queue.md` 输出检查
 
 ## 目录约定
 
@@ -56,7 +58,7 @@ GitHub Actions 位于 `.github/workflows/python-ci.yml`，当前会执行：
 - 修改 README 的命令时，同步检查 `docs/usage.md` 和 CI。
 - 修改脚本入口文件名时，同步检查 README、文档和工作流。
 - 新增工作流时，同步更新示例、docs、README 和 CI。
-- 新增 CLI 参数时，同步更新 docs/video-workflow.md 和 CI 覆盖。
+- 新增 CLI 参数时，同步更新相关工作流文档和 CI 覆盖。
 
 ## PR 检查清单
 
