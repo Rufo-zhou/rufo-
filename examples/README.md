@@ -19,6 +19,7 @@ python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --target-model sora \
   --quality-mode high \
+  --creative-style cinematic \
   --aspect-ratio 9:16 \
   --out outputs/video
 ```
@@ -26,5 +27,7 @@ python3 script_to_video_prompt_workflow.py \
 输出重点查看：
 
 - `outputs/video/production_brief.md`
+- `outputs/video/model_prompt_queue.md`
+- `outputs/video/shot_prompt_queue.csv`
 - `outputs/video/storyboard_prompts.md`
 - `outputs/video/character_three_view_prompts.md`
