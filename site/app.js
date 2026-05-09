@@ -7,6 +7,9 @@ const dom = {
   cursorLabel: $("#cursor-label"),
   scrollMeter: $("#scroll-meter"),
   hero: $("#hero"),
+  heroObjectStage: $("#hero-object-stage"),
+  hotspotButtons: $$(".object-hotspot"),
+  languageButtons: $$(".lang-button"),
   form: $("#script-form"),
   scriptInput: $("#script-input"),
   inputMeter: $("#input-meter"),
@@ -28,6 +31,232 @@ const dom = {
   downloadMd: $("#download-md"),
   downloadCsv: $("#download-csv"),
 };
+
+const translations = {
+  zh: {
+    "nav.studio": "创作台",
+    "nav.flow": "流程",
+    "nav.systems": "系统",
+    "nav.docs": "文档",
+    "hero.eyebrow": "AI 视频创作工作流",
+    "hero.title": "把剧本变成可导演的影像方案。",
+    "hero.subtitle": "输入剧本，即刻生成分镜提示词、人物三视图、模型队列和制作交付包。",
+    "hero.start": "开始创作",
+    "hero.system": "查看流程",
+    "hotspot.script": "剧本层",
+    "hotspot.shots": "分镜层",
+    "hotspot.model": "模型交付",
+    "hud.package": "实时创作包",
+    "hud.characters": "角色一致性",
+    "hud.safety": "安全机制",
+    "hud.local": "本地生成",
+    "studio.eyebrow": "创作控制台",
+    "studio.title": "直接在网页里生成创作包",
+    "studio.script": "剧本",
+    "control.model": "模型",
+    "control.style": "风格",
+    "control.aspect": "画幅",
+    "control.depth": "镜头密度",
+    "control.limit": "场次上限",
+    "action.generate": "生成创作包",
+    "action.copy": "复制提示词包",
+    "tab.shots": "分镜",
+    "tab.characters": "角色",
+    "tab.package": "创作包",
+    "workflow.eyebrow": "制作地图",
+    "workflow.title": "从剧本到模型交付",
+    "workflow.step1.title": "剧本识别",
+    "workflow.step1.body": "识别场次、时间、地点、角色和冲突，把松散文本整理成镜头骨架。",
+    "workflow.step2.title": "分镜导演",
+    "workflow.step2.body": "生成景别、运动、镜头意图、画面层次和模型可读提示词。",
+    "workflow.step3.title": "角色设定",
+    "workflow.step3.body": "输出三视图提示词、造型规则和角色一致性约束。",
+    "workflow.step4.title": "模型队列",
+    "workflow.step4.body": "形成 Markdown 创作包和 CSV 队列，方便继续进入视频生成工具。",
+    "gallery.eyebrow": "创意系统",
+    "gallery.title": "一个仓库，两个生产系统",
+    "gallery.poster.eyebrow": "海报工作流",
+    "gallery.poster.title": "肖像到叙事海报",
+    "gallery.poster.body": "风格预设 / 画幅 / 模型目标 / 多版本提示词",
+    "gallery.video.eyebrow": "视频工作流",
+    "gallery.video.title": "剧本到 AI 视频分镜",
+    "gallery.video.body": "镜头队列 / 人物三视图 / CSV / 模型交付包",
+    "gallery.qa.eyebrow": "安全系统",
+    "gallery.qa.title": "生成前风险检查",
+    "gallery.qa.body": "本地生成 / 无数据上传 / 输入清理 / 提示词完整度",
+    "docs.eyebrow": "开源社区格式",
+    "docs.title": "面向社区的规范入口",
+    "docs.video": "剧本识别、分镜、角色三视图",
+    "docs.poster": "人物海报提示词生产",
+    "docs.quality": "质量模式和模型选择",
+    "docs.ci": "自动测试和安全检查",
+    "status.ready": "已准备好进行新的制作。",
+    "status.empty": "请先粘贴剧本或场景梗概。",
+    "status.secret": "检测到疑似密钥内容，请删除后再生成。",
+    "status.generated": "已生成 {shots} 个镜头和 {characters} 个角色参考。",
+    "status.copied": "提示词包已复制。",
+    "status.copyFailed": "复制失败，可以直接使用创作包面板中的文字。",
+    "status.md": "Markdown 创作包已下载。",
+    "status.csv": "CSV 镜头队列已下载。",
+    "status.hotspot.script": "剧本层会先整理场景、地点、动作和冲突。",
+    "status.hotspot.shots": "分镜层会把故事拆成可交付给视频模型的镜头提示词。",
+    "status.hotspot.model": "模型交付会把创作包整理成 Markdown 和 CSV 队列。",
+  },
+  en: {
+    "nav.studio": "Studio",
+    "nav.flow": "Flow",
+    "nav.systems": "Systems",
+    "nav.docs": "Docs",
+    "hero.eyebrow": "AI video workflow",
+    "hero.title": "Turn a script into directed video prompts.",
+    "hero.subtitle": "Paste a script and generate storyboard prompts, character turnarounds, model queues, and a production handoff package.",
+    "hero.start": "Start creating",
+    "hero.system": "See the flow",
+    "hotspot.script": "Script layer",
+    "hotspot.shots": "Storyboard layer",
+    "hotspot.model": "Model handoff",
+    "hud.package": "Live package",
+    "hud.characters": "Character lock",
+    "hud.safety": "Safety",
+    "hud.local": "Local only",
+    "studio.eyebrow": "Creation console",
+    "studio.title": "Generate the production pack in the browser",
+    "studio.script": "Script",
+    "control.model": "Model",
+    "control.style": "Style",
+    "control.aspect": "Aspect",
+    "control.depth": "Shot depth",
+    "control.limit": "Scene limit",
+    "action.generate": "Generate package",
+    "action.copy": "Copy prompt pack",
+    "tab.shots": "Shots",
+    "tab.characters": "Characters",
+    "tab.package": "Package",
+    "workflow.eyebrow": "Production map",
+    "workflow.title": "From script to model handoff",
+    "workflow.step1.title": "Script intelligence",
+    "workflow.step1.body": "Detect scenes, time, locations, characters, and conflict, then turn loose text into a shot structure.",
+    "workflow.step2.title": "Shot direction",
+    "workflow.step2.body": "Create shot size, motion, intent, composition layers, and model-readable prompts.",
+    "workflow.step3.title": "Character bible",
+    "workflow.step3.body": "Output three-view prompts, wardrobe rules, and identity consistency constraints.",
+    "workflow.step4.title": "Model queue",
+    "workflow.step4.body": "Export Markdown packages and CSV queues for the next AI video tool.",
+    "gallery.eyebrow": "Creative systems",
+    "gallery.title": "One repository, two production systems",
+    "gallery.poster.eyebrow": "Poster workflow",
+    "gallery.poster.title": "Portrait to narrative poster",
+    "gallery.poster.body": "Style presets / aspect ratio / model target / multi-version prompts",
+    "gallery.video.eyebrow": "Video workflow",
+    "gallery.video.title": "Script to AI storyboard",
+    "gallery.video.body": "Shot queue / character turnarounds / CSV / model handoff",
+    "gallery.qa.eyebrow": "Safety system",
+    "gallery.qa.title": "Pre-generation risk checks",
+    "gallery.qa.body": "Local generation / no upload / input cleanup / prompt completeness",
+    "docs.eyebrow": "Open source ready",
+    "docs.title": "Community-ready documentation",
+    "docs.video": "Script detection, storyboards, character turnarounds",
+    "docs.poster": "Character poster prompt production",
+    "docs.quality": "Quality modes and model selection",
+    "docs.ci": "Automated tests and safety checks",
+    "status.ready": "Ready for a new production pass.",
+    "status.empty": "Paste a script or scene outline before generating.",
+    "status.secret": "Sensitive token-like text detected. Remove secrets before generating.",
+    "status.generated": "Generated {shots} shots and {characters} character references.",
+    "status.copied": "Prompt package copied.",
+    "status.copyFailed": "Copy failed. Use the Package tab text.",
+    "status.md": "Markdown package downloaded.",
+    "status.csv": "CSV shot queue downloaded.",
+    "status.hotspot.script": "The script layer organizes scenes, locations, action, and conflict first.",
+    "status.hotspot.shots": "The storyboard layer turns story beats into video-model-ready prompts.",
+    "status.hotspot.model": "The handoff layer formats the package as Markdown and CSV queues.",
+  },
+  ja: {
+    "nav.studio": "制作台",
+    "nav.flow": "流れ",
+    "nav.systems": "システム",
+    "nav.docs": "資料",
+    "hero.eyebrow": "AI 動画制作ワークフロー",
+    "hero.title": "脚本を演出可能な映像案へ。",
+    "hero.subtitle": "脚本を入力すると、絵コンテプロンプト、人物三面図、モデル用キュー、制作パッケージを生成します。",
+    "hero.start": "制作を始める",
+    "hero.system": "流れを見る",
+    "hotspot.script": "脚本層",
+    "hotspot.shots": "絵コンテ層",
+    "hotspot.model": "モデル納品",
+    "hud.package": "ライブパッケージ",
+    "hud.characters": "人物固定",
+    "hud.safety": "安全",
+    "hud.local": "ローカル生成",
+    "studio.eyebrow": "制作コンソール",
+    "studio.title": "ブラウザで制作パッケージを生成",
+    "studio.script": "脚本",
+    "control.model": "モデル",
+    "control.style": "スタイル",
+    "control.aspect": "比率",
+    "control.depth": "ショット密度",
+    "control.limit": "場面上限",
+    "action.generate": "生成する",
+    "action.copy": "プロンプトをコピー",
+    "tab.shots": "ショット",
+    "tab.characters": "人物",
+    "tab.package": "パッケージ",
+    "workflow.eyebrow": "制作マップ",
+    "workflow.title": "脚本からモデル納品まで",
+    "workflow.step1.title": "脚本解析",
+    "workflow.step1.body": "場面、時間、場所、人物、対立を読み取り、テキストをショット構造に整理します。",
+    "workflow.step2.title": "ショット演出",
+    "workflow.step2.body": "画角、動き、意図、構図レイヤー、モデルが読みやすいプロンプトを生成します。",
+    "workflow.step3.title": "人物設定",
+    "workflow.step3.body": "三面図プロンプト、衣装ルール、同一性維持の条件を出力します。",
+    "workflow.step4.title": "モデルキュー",
+    "workflow.step4.body": "Markdown パッケージと CSV キューにまとめ、次の動画生成ツールへ渡します。",
+    "gallery.eyebrow": "制作システム",
+    "gallery.title": "ひとつのリポジトリ、ふたつの制作系統",
+    "gallery.poster.eyebrow": "ポスターワークフロー",
+    "gallery.poster.title": "ポートレートから物語ポスターへ",
+    "gallery.poster.body": "スタイル / 比率 / モデル指定 / 複数案プロンプト",
+    "gallery.video.eyebrow": "動画ワークフロー",
+    "gallery.video.title": "脚本から AI 絵コンテへ",
+    "gallery.video.body": "ショットキュー / 人物三面図 / CSV / モデル納品",
+    "gallery.qa.eyebrow": "安全システム",
+    "gallery.qa.title": "生成前リスクチェック",
+    "gallery.qa.body": "ローカル生成 / アップロードなし / 入力整理 / 完整性チェック",
+    "docs.eyebrow": "オープンソース対応",
+    "docs.title": "コミュニティ向け資料入口",
+    "docs.video": "脚本解析、絵コンテ、人物三面図",
+    "docs.poster": "人物ポスタープロンプト制作",
+    "docs.quality": "品質モードとモデル選択",
+    "docs.ci": "自動テストと安全チェック",
+    "status.ready": "新しい制作を開始できます。",
+    "status.empty": "先に脚本または場面メモを入力してください。",
+    "status.secret": "キーのような文字列を検出しました。削除してから生成してください。",
+    "status.generated": "{shots} ショットと {characters} 人物参照を生成しました。",
+    "status.copied": "プロンプトパッケージをコピーしました。",
+    "status.copyFailed": "コピーに失敗しました。パッケージ欄の文字を使用してください。",
+    "status.md": "Markdown パッケージをダウンロードしました。",
+    "status.csv": "CSV ショットキューをダウンロードしました。",
+    "status.hotspot.script": "脚本層では場面、場所、動き、対立を先に整理します。",
+    "status.hotspot.shots": "絵コンテ層では物語を動画モデル向けのショットに分解します。",
+    "status.hotspot.model": "納品層では Markdown と CSV キューとして整理します。",
+  },
+};
+
+const languageMeta = {
+  zh: "zh-CN",
+  en: "en",
+  ja: "ja",
+};
+
+let activeLanguage = "zh";
+
+function translate(key) {
+  return translations[activeLanguage]?.[key] || translations.zh[key] || key;
+}
+
+function formatMessage(key, values = {}) {
+  return translate(key).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ""));
+}
 
 const pointer = {
   x: window.innerWidth * 0.5,
@@ -259,7 +488,8 @@ function renderCharacters(characters) {
   characters.forEach((item) => {
     const card = makeEl("article", "character-card");
     card.append(makeEl("h3", "", item.name));
-    card.append(makeEl("p", "", `${item.role}. ${item.front}`));
+    const roleText = activeLanguage === "zh" ? (item.role === "primary character" ? "主角" : "辅助角色") : activeLanguage === "ja" ? (item.role === "primary character" ? "主要人物" : "補助人物") : item.role;
+    card.append(makeEl("p", "", `${roleText}. ${item.front}`));
     const meta = makeEl("div", "shot-meta");
     meta.append(makeEl("span", "", "front"));
     meta.append(makeEl("span", "", "side"));
@@ -284,11 +514,11 @@ function generatePackage() {
   const text = sanitizeText(dom.scriptInput.value);
   const config = getConfig();
   if (!text) {
-    setStatus("Paste a script or scene outline before generating.", true);
+    setStatus(translate("status.empty"), true);
     return;
   }
   if (secretPattern.test(text)) {
-    setStatus("Sensitive token-like text detected. Remove secrets before generating.", true);
+    setStatus(translate("status.secret"), true);
     return;
   }
 
@@ -303,14 +533,16 @@ function generatePackage() {
   state.packageText = packageText;
   state.csvText = csvText;
 
-  dom.outputModel.textContent = `${config.model} handoff`;
-  dom.outputCount.textContent = `${shots.length} shots`;
-  dom.hudShots.textContent = `${shots.length} shots`;
-  dom.hudCharacters.textContent = `${characters.length} profiles`;
+  const shotCount = activeLanguage === "zh" ? `${shots.length} 个镜头` : activeLanguage === "ja" ? `${shots.length} ショット` : `${shots.length} shots`;
+  const characterCount = activeLanguage === "zh" ? `${characters.length} 个角色` : activeLanguage === "ja" ? `${characters.length} 人物` : `${characters.length} profiles`;
+  dom.outputModel.textContent = activeLanguage === "zh" ? `${config.model} 交付` : activeLanguage === "ja" ? `${config.model} 納品` : `${config.model} handoff`;
+  dom.outputCount.textContent = shotCount;
+  dom.hudShots.textContent = shotCount;
+  dom.hudCharacters.textContent = characterCount;
   dom.packageOutput.textContent = packageText;
   renderShots(shots);
   renderCharacters(characters);
-  setStatus(`Generated ${shots.length} shots and ${characters.length} character references.`);
+  setStatus(formatMessage("status.generated", { shots: shots.length, characters: characters.length }));
 }
 
 async function copyText(text) {
@@ -374,15 +606,48 @@ function setupForm() {
   dom.scriptInput.addEventListener("input", updateInputMeter);
   dom.copyPackage.addEventListener("click", async () => {
     const ok = await copyText(state.packageText);
-    setStatus(ok ? "Prompt package copied." : "Copy failed. Use the Package tab text.", !ok);
+    setStatus(ok ? translate("status.copied") : translate("status.copyFailed"), !ok);
   });
   dom.downloadMd.addEventListener("click", () => {
     downloadText("rufo-video-prompt-package.md", state.packageText, "text/markdown;charset=utf-8");
-    setStatus("Markdown package downloaded.");
+    setStatus(translate("status.md"));
   });
   dom.downloadCsv.addEventListener("click", () => {
     downloadText("rufo-shot-prompt-queue.csv", state.csvText, "text/csv;charset=utf-8");
-    setStatus("CSV shot queue downloaded.");
+    setStatus(translate("status.csv"));
+  });
+}
+
+function applyLanguage(lang, options = {}) {
+  const nextLang = translations[lang] ? lang : "zh";
+  activeLanguage = nextLang;
+  document.documentElement.lang = languageMeta[nextLang];
+  $$("[data-i18n]").forEach((element) => {
+    element.textContent = translate(element.dataset.i18n);
+  });
+  dom.languageButtons.forEach((button) => {
+    const active = button.dataset.lang === nextLang;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  if (!options.skipGenerate) generatePackage();
+}
+
+function setupLanguage() {
+  dom.languageButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.classList.contains("active")));
+    button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+  });
+  applyLanguage(activeLanguage, { skipGenerate: true });
+  setStatus(translate("status.ready"));
+}
+
+function setupHeroObject() {
+  dom.hotspotButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      dom.hotspotButtons.forEach((item) => item.classList.toggle("active", item === button));
+      setStatus(translate(`status.hotspot.${button.dataset.hotspot}`));
+    });
   });
 }
 
@@ -395,6 +660,10 @@ function setupCursor() {
     pointer.ny = (event.clientY / window.innerHeight) * 2 - 1;
     dom.hero?.style.setProperty("--mx", `${event.clientX}px`);
     dom.hero?.style.setProperty("--my", `${event.clientY}px`);
+    dom.heroObjectStage?.style.setProperty("--tilt-x", `${pointer.ny * -5}deg`);
+    dom.heroObjectStage?.style.setProperty("--tilt-y", `${pointer.nx * 7}deg`);
+    dom.heroObjectStage?.style.setProperty("--shift-x", `${pointer.nx * 24}px`);
+    dom.heroObjectStage?.style.setProperty("--shift-y", `${pointer.ny * 14}px`);
     const target = event.target.closest(interactive);
     dom.cursor.classList.toggle("is-action", Boolean(target));
     dom.cursor.classList.toggle("is-typing", Boolean(event.target.closest("textarea, input, select")));
@@ -528,6 +797,8 @@ function setupCanvas() {
 }
 
 setupCursor();
+setupLanguage();
+setupHeroObject();
 setupTabs();
 setupForm();
 setupScrollAnimation();
