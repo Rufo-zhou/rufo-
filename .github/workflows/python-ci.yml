@@ -53,3 +53,11 @@ jobs:
           grep -q '"status": "needs_revision"' outputs/video-secret-ci/05_qa_report.json
           printf 'hello' > bad-script.exe
           ! python3 script_to_video_prompt_workflow.py --script bad-script.exe --out outputs/video-bad-ci
+
+      - name: Validate website assets
+        run: |
+          test -f site/index.html
+          test -f site/styles.css
+          test -f site/app.js
+          grep -q "Rufo AI Workflow Studio" site/index.html
+          grep -q "Three.js" site/README.md
