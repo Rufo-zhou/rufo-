@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Rufo AI video workflow workbench</title>
+  <desc id="desc">A premium cinematic creative desk with screenplay pages, storyboard panels, a lens, film strips, and a glass AI production tablet.</desc>
+  <defs>
+    <radialGradient id="tableGlow" cx="48%" cy="45%" r="72%">
+      <stop offset="0" stop-color="#263731"/>
+      <stop offset="0.45" stop-color="#111716"/>
+      <stop offset="1" stop-color="#050607"/>
+    </radialGradient>
+    <radialGradient id="tealGlow" cx="40%" cy="42%" r="58%">
+      <stop offset="0" stop-color="#83fff0" stop-opacity="0.5"/>
+      <stop offset="0.4" stop-color="#58cec5" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#58cec5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lensGlass" cx="48%" cy="44%" r="54%">
+      <stop offset="0" stop-color="#e7fbff"/>
+      <stop offset="0.16" stop-color="#82c7d9"/>
+      <stop offset="0.34" stop-color="#23445a"/>
+      <stop offset="0.62" stop-color="#10161e"/>
+      <stop offset="1" stop-color="#020204"/>
+    </radialGradient>
+    <linearGradient id="pagePaper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fffdf4"/>
+      <stop offset="0.52" stop-color="#efe7d4"/>
+      <stop offset="1" stop-color="#c9bd9d"/>
+    </linearGradient>
+    <linearGradient id="tabletGlass" x1="0.08" x2="0.92" y1="0" y2="1">
+      <stop offset="0" stop-color="#f4f1e8" stop-opacity="0.36"/>
+      <stop offset="0.28" stop-color="#6fd4cb" stop-opacity="0.12"/>
+      <stop offset="0.62" stop-color="#111716" stop-opacity="0.64"/>
+      <stop offset="1" stop-color="#020304" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="0" x2="1">
+      <stop offset="0" stop-color="#f1d991" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#f6deb1" stop-opacity="0.74"/>
+      <stop offset="1" stop-color="#a86834" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="38" stdDeviation="34" flood-color="#000000" flood-opacity="0.48"/>
+    </filter>
+    <filter id="smallShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="15" flood-color="#000000" flood-opacity="0.38"/>
+    </filter>
+    <filter id="noise">
+      <feTurbulence baseFrequency="0.78" numOctaves="3" seed="19" type="fractalNoise"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.055"/>
+      </feComponentTransfer>
+    </filter>
+    <pattern id="filmHoles" width="54" height="54" patternUnits="userSpaceOnUse">
+      <rect x="8" y="10" width="14" height="20" rx="3" fill="#f4f1e8" opacity="0.64"/>
+      <rect x="32" y="10" width="14" height="20" rx="3" fill="#f4f1e8" opacity="0.64"/>
+    </pattern>
+    <pattern id="storyGrid" width="160" height="108" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="138" height="80" rx="10" fill="#f4f1e8" opacity="0.11"/>
+      <path d="M18 22h52M18 40h88M18 58h70" stroke="#f4f1e8" stroke-width="3" opacity="0.16" stroke-linecap="round"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="1100" fill="url(#tableGlow)"/>
+  <rect width="1600" height="1100" filter="url(#noise)" opacity="0.82"/>
+  <ellipse cx="815" cy="764" rx="690" ry="255" fill="#000" opacity="0.48"/>
+  <ellipse cx="710" cy="515" rx="690" ry="510" fill="url(#tealGlow)"/>
+
+  <g opacity="0.38">
+    <path d="M188 858c276-112 455-46 654-115 219-76 336-262 574-226" fill="none" stroke="#6fd4cb" stroke-width="2"/>
+    <path d="M120 782c244-96 411-61 652-156 210-82 366-224 674-196" fill="none" stroke="#f0d28a" stroke-width="1.6" opacity="0.55"/>
+    <path d="M256 920c336-130 530-65 724-128 178-58 272-193 458-179" fill="none" stroke="#f4f1e8" stroke-width="1" opacity="0.4"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <g transform="translate(430 256) rotate(-13)">
+      <rect x="0" y="0" width="485" height="610" rx="28" fill="#d4c9ae" opacity="0.92"/>
+      <rect x="22" y="18" width="438" height="562" rx="20" fill="url(#pagePaper)"/>
+      <path d="M74 88h258M74 132h324M74 176h275M74 220h342M74 264h210M74 352h320M74 396h280M74 440h344" stroke="#302b22" stroke-width="12" stroke-linecap="round" opacity="0.16"/>
+      <path d="M74 514h116" stroke="#6b4f2a" stroke-width="14" stroke-linecap="round" opacity="0.34"/>
+      <circle cx="397" cy="520" r="34" fill="#bd6e45" opacity="0.18"/>
+      <path d="M384 521l15 14 26-34" fill="none" stroke="#bd6e45" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+    </g>
+
+    <g transform="translate(246 468) rotate(8)">
+      <rect x="0" y="0" width="360" height="435" rx="26" fill="#111716"/>
+      <rect x="24" y="28" width="312" height="150" rx="18" fill="#f4f1e8" opacity="0.9"/>
+      <rect x="24" y="205" width="312" height="150" rx="18" fill="#f4f1e8" opacity="0.78"/>
+      <path d="M55 76c54-42 120-24 166 34 28 36 56 45 88 14M56 252c40-35 98-29 142 18 36 38 69 46 118 3" fill="none" stroke="#0b0d0b" stroke-width="8" opacity="0.16" stroke-linecap="round"/>
+      <path d="M46 374h136M46 399h212" stroke="#f4f1e8" stroke-width="8" stroke-linecap="round" opacity="0.2"/>
+    </g>
+
+    <g transform="translate(720 220) rotate(7)">
+      <rect x="0" y="0" width="590" height="500" rx="38" fill="#050607"/>
+      <rect x="24" y="26" width="542" height="448" rx="28" fill="url(#tabletGlass)" stroke="url(#goldEdge)" stroke-width="2.5"/>
+      <rect x="60" y="64" width="476" height="338" rx="18" fill="url(#storyGrid)" opacity="0.9"/>
+      <path d="M84 425h134M250 425h92M375 425h142" stroke="#6fd4cb" stroke-width="7" stroke-linecap="round" opacity="0.55"/>
+      <circle cx="130" cy="118" r="20" fill="#6fd4cb" opacity="0.75"/>
+      <circle cx="238" cy="186" r="15" fill="#f0d28a" opacity="0.75"/>
+      <circle cx="428" cy="136" r="18" fill="#8aa8ff" opacity="0.7"/>
+      <path d="M150 121c62 8 52 62 88 65M253 187c67 14 101-30 157-48" fill="none" stroke="#f4f1e8" stroke-width="4" opacity="0.34"/>
+      <path d="M88 330c82-54 144-12 224-54 70-36 98-96 174-72" fill="none" stroke="#6fd4cb" stroke-width="3" opacity="0.42"/>
+      <path d="M82 88h48M456 88h54" stroke="#f4f1e8" stroke-width="5" stroke-linecap="round" opacity="0.28"/>
+      <path d="M78 274h408" stroke="#f4f1e8" stroke-width="2" opacity="0.12"/>
+    </g>
+
+    <g transform="translate(1045 626) rotate(-16)">
+      <rect x="0" y="0" width="395" height="95" rx="18" fill="#111716"/>
+      <rect x="18" y="16" width="360" height="62" rx="12" fill="url(#filmHoles)" opacity="0.78"/>
+      <rect x="72" y="17" width="84" height="61" rx="8" fill="#0b0d0b" opacity="0.85"/>
+      <rect x="198" y="17" width="84" height="61" rx="8" fill="#0b0d0b" opacity="0.85"/>
+      <path d="M77 46h70M205 47h66" stroke="#6fd4cb" stroke-width="4" opacity="0.34"/>
+    </g>
+  </g>
+
+  <g filter="url(#softShadow)" transform="translate(760 580)">
+    <ellipse cx="260" cy="260" rx="240" ry="130" fill="#000" opacity="0.48"/>
+    <circle cx="256" cy="210" r="184" fill="#06080a"/>
+    <circle cx="256" cy="210" r="157" fill="#141923" stroke="url(#goldEdge)" stroke-width="9"/>
+    <circle cx="256" cy="210" r="116" fill="url(#lensGlass)"/>
+    <circle cx="216" cy="164" r="42" fill="#dff9ff" opacity="0.46"/>
+    <circle cx="310" cy="256" r="34" fill="#6fd4cb" opacity="0.16"/>
+    <path d="M119 128c54-74 167-92 244-40" fill="none" stroke="#f4f1e8" stroke-width="5" opacity="0.28" stroke-linecap="round"/>
+    <path d="M122 287c70 72 187 84 269 18" fill="none" stroke="#f0d28a" stroke-width="4" opacity="0.24" stroke-linecap="round"/>
+    <rect x="90" y="356" width="334" height="52" rx="26" fill="#0b0d0b" opacity="0.9"/>
+    <path d="M145 382h218" stroke="#f4f1e8" stroke-width="5" opacity="0.22" stroke-linecap="round"/>
+  </g>
+
+  <g filter="url(#smallShadow)">
+    <g transform="translate(246 310) rotate(-24)">
+      <rect x="0" y="0" width="330" height="72" rx="18" fill="#101819"/>
+      <path d="M28 27h86M28 47h156" stroke="#f4f1e8" stroke-width="6" opacity="0.2" stroke-linecap="round"/>
+      <circle cx="282" cy="36" r="18" fill="#6fd4cb" opacity="0.75"/>
+    </g>
+    <g transform="translate(1195 438) rotate(18)">
+      <rect x="0" y="0" width="230" height="230" rx="34" fill="#f4f1e8" opacity="0.88"/>
+      <circle cx="92" cy="86" r="42" fill="#0b0d0b" opacity="0.16"/>
+      <path d="M50 155h128M50 181h96" stroke="#0b0d0b" stroke-width="10" opacity="0.18" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <g opacity="0.8">
+    <path d="M102 176h116M140 176v116M1350 168h116M1466 168v116M128 920v112M128 1032h116M1362 940h116M1478 828v112" stroke="#f4f1e8" stroke-width="3" opacity="0.18" stroke-linecap="round"/>
+    <circle cx="236" cy="210" r="5" fill="#6fd4cb"/>
+    <circle cx="1360" cy="250" r="5" fill="#f0d28a"/>
+    <circle cx="1426" cy="900" r="5" fill="#6fd4cb"/>
+  </g>
+
+  <path d="M426 292c160-190 502-218 742-80" fill="none" stroke="#f4f1e8" stroke-width="1.5" opacity="0.2"/>
+  <path d="M396 340c202-178 538-166 804 8" fill="none" stroke="#6fd4cb" stroke-width="1.4" opacity="0.18"/>
+  <rect x="0" y="0" width="1600" height="1100" fill="none" stroke="#f4f1e8" stroke-opacity="0.06" stroke-width="2"/>
+</svg>
