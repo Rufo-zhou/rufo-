@@ -1,6 +1,7 @@
 # Rufo AI Workflow Studio Website
 
 This static website presents the project as an interactive AI creative workflow studio.
+It includes a local-only prompt workbench that can generate storyboard prompts, character three-view prompts, a Markdown handoff package, and a CSV shot queue directly in the browser.
 
 ## Local Preview
 
@@ -20,6 +21,6 @@ http://localhost:4173
 
 - `index.html` - page structure and content
 - `styles.css` - responsive visual design
-- `app.js` - Three.js hero scene, fallback canvas, and demo interaction
+- `app.js` - Canvas motion system, custom cursor, scroll reveals, and local prompt generation
 
-The page is designed to work as a static GitHub Pages site. The Three.js scene loads from a public ESM CDN and falls back to a native canvas animation if the module cannot be loaded.
+The page is designed to work as a static GitHub Pages site. It does not send script input to a server and avoids external JavaScript dependencies.
