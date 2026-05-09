@@ -15,6 +15,16 @@
 | 安全与隐私 | [security.md](security.md) | 输入校验、API key、隐私数据和风险边界 |
 | 路线图 | [roadmap.md](roadmap.md) | 后续计划和优先级 |
 
+## 展示网站
+
+项目官网放在 [`site/`](../site/) 目录，用来向普通用户展示工具能做什么。它是静态网站，包含互动视觉首页、剧本转分镜演示和文档入口。
+
+本地预览：
+
+```bash
+python3 -m http.server 4173 --directory site
+```
+
 ## 根目录保留文件
 
 以下文件按照开源社区习惯保留在根目录，便于 GitHub 自动识别：
