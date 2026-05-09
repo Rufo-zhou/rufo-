@@ -14,6 +14,10 @@ cd rufo-
 python3 multi_agent_poster_system.py \
   --image ./portrait.png \
   --theme "校园剧院独唱" \
+  --style-preset cinematic \
+  --model-target sdxl \
+  --quality-mode balanced \
+  --aspect-ratio 2:3 \
   --out ./outputs
 ```
 
@@ -24,6 +28,11 @@ python3 multi_agent_poster_system.py \
 | `--image` | 是 | 输入人物肖像路径，支持 JPG、JPEG、PNG、WebP |
 | `--theme` | 是 | 创意主题，例如 `校园剧院独唱` |
 | `--out` | 否 | 输出目录，默认 `./outputs` |
+| `--aspect-ratio` | 否 | 海报画幅，例如 `2:3`、`1:1`、`16:9`、`9:16` |
+| `--style-preset` | 否 | 海报风格，支持 `cinematic`、`editorial`、`watercolor`、`commercial`、`noir`、`anime` |
+| `--model-target` | 否 | 目标图像模型，支持 `general`、`midjourney`、`sdxl`、`dalle`、`comfyui` |
+| `--quality-mode` | 否 | 输出质量模式，支持 `fast`、`balanced`、`high` |
+| `--variations` | 否 | 提示词变体数量，范围 1-5 |
 | `--use-openai` | 否 | 开启 OpenAI API 模式 |
 | `--model` | 否 | OpenAI 模型名，默认 `gpt-4o-mini` |
 
@@ -41,9 +50,11 @@ outputs/
   06_render_info.json
   pipeline_result.json
   render_instruction.txt
+  poster_prompt_package.md
+  production_brief.md
 ```
 
-其中 `render_instruction.txt` 是最适合复制到图像生成工具里的最终提示词文件。
+其中 `render_instruction.txt` 是最短的复制入口；`poster_prompt_package.md` 包含主提示词、负面词和多个变体方向；`production_brief.md` 用来检查主题、构图、模型目标和 QA 状态。
 
 ## 剧本转视频提示词工作流
 
@@ -53,6 +64,7 @@ python3 script_to_video_prompt_workflow.py \
   --title "雨夜排练" \
   --target-model sora \
   --quality-mode high \
+  --creative-style cinematic \
   --aspect-ratio 9:16 \
   --out ./outputs/video
 ```
@@ -69,10 +81,28 @@ outputs/video/
   storyboard_prompts.md
   character_three_view_prompts.md
   production_brief.md
+  model_prompt_queue.md
+  shot_prompt_queue.csv
   video_workflow_result.json
 ```
 
-详细说明请看 [video-workflow.md](video-workflow.md)。
+`model_prompt_queue.md` 适合逐条复制到视频模型；`shot_prompt_queue.csv` 适合导入表格或后续自动化工具。详细说明请看 [video-workflow.md](video-workflow.md)。
+
+## 视频参数说明
+
+| 参数 | 必填 | 说明 |
+| --- | --- | --- |
+| `--script` | 是 | 剧本文本路径 |
+| `--title` | 否 | 项目标题，默认使用文件名 |
+| `--out` | 否 | 输出目录，默认 `./outputs/video` |
+| `--target-model` | 否 | 目标视频模型，支持 `general`、`sora`、`runway`、`kling`、`pika`、`luma` |
+| `--quality-mode` | 否 | 输出质量模式，支持 `fast`、`balanced`、`high` |
+| `--creative-style` | 否 | 视频风格，支持 `cinematic`、`realistic`、`anime`、`documentary`、`commercial`、`fantasy` |
+| `--aspect-ratio` | 否 | 视频画幅，例如 `16:9`、`9:16`、`1:1` |
+| `--max-scenes` | 否 | 最多处理场次数，默认 40 |
+| `--max-characters` | 否 | 最多识别角色数，默认 12 |
+| `--use-openai` | 否 | 开启可选 OpenAI JSON 增强 |
+| `--model` | 否 | OpenAI 模型名，默认 `gpt-4o-mini` |
 
 ## OpenAI API 模式
 
