@@ -60,4 +60,7 @@ jobs:
           test -f site/styles.css
           test -f site/app.js
           grep -q "Rufo AI Workflow Studio" site/index.html
-          grep -q "Three.js" site/README.md
+          grep -q "Content-Security-Policy" site/index.html
+          grep -q "local-only prompt workbench" site/README.md
+          node --check site/app.js
+          ! grep -R "innerHTML\\|eval(\\|new Function\\|document.write\\|https://esm.sh" site
