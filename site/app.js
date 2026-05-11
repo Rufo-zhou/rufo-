@@ -665,10 +665,10 @@ function setupCursor() {
     pointer.ny = (event.clientY / window.innerHeight) * 2 - 1;
     dom.hero?.style.setProperty("--mx", `${event.clientX}px`);
     dom.hero?.style.setProperty("--my", `${event.clientY}px`);
-    dom.heroObjectStage?.style.setProperty("--tilt-x", `${pointer.ny * -5}deg`);
-    dom.heroObjectStage?.style.setProperty("--tilt-y", `${pointer.nx * 7}deg`);
-    dom.heroObjectStage?.style.setProperty("--shift-x", `${pointer.nx * 24}px`);
-    dom.heroObjectStage?.style.setProperty("--shift-y", `${pointer.ny * 14}px`);
+    dom.heroObjectStage?.style.setProperty("--tilt-x", `${pointer.ny * -1.4}deg`);
+    dom.heroObjectStage?.style.setProperty("--tilt-y", `${pointer.nx * 1.8}deg`);
+    dom.heroObjectStage?.style.setProperty("--shift-x", `${pointer.nx * -34}px`);
+    dom.heroObjectStage?.style.setProperty("--shift-y", `${pointer.ny * -18}px`);
     const target = event.target.closest(interactive);
     dom.cursor.classList.toggle("is-action", Boolean(target));
     dom.cursor.classList.toggle("is-typing", Boolean(event.target.closest("textarea, input, select")));
@@ -720,11 +720,12 @@ function setupCanvas() {
   const ctx = canvas.getContext("2d");
   let width = 0;
   let height = 0;
-  const particles = Array.from({ length: 180 }, (_, index) => ({
-    x: Math.random(),
-    y: Math.random(),
-    z: Math.random(),
-    speed: 0.0003 + (index % 9) * 0.00004,
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const nodes = Array.from({ length: 58 }, (_, index) => ({
+    lane: index % 9,
+    phase: index / 58,
+    speed: 0.000055 + (index % 7) * 0.00001,
+    radius: 1.2 + (index % 5) * 0.32,
   }));
 
   function resize() {
@@ -738,62 +739,67 @@ function setupCanvas() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function drawPanel(x, y, w, h, alpha) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = "rgba(244,241,232,0.34)";
-    ctx.fillStyle = "rgba(244,241,232,0.055)";
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeRect(x, y, w, h);
-    ctx.restore();
+  function flowPoint(progress, lane = 0, time = 0) {
+    const t = Math.max(0, Math.min(1, progress));
+    const x = width * (-0.08 + t * 1.17) + pointer.nx * (28 - t * 34);
+    const baseY = height * (0.78 - t * 0.43);
+    const wave = Math.sin(t * Math.PI * 4.2 + lane * 0.68 + time * 0.0008) * height * 0.028;
+    const laneOffset = (lane - 4) * height * 0.012;
+    return { x, y: baseY + wave + laneOffset + pointer.ny * 18 };
+  }
+
+  function drawFlowLine(lane, time) {
+    ctx.beginPath();
+    for (let i = 0; i <= 80; i += 1) {
+      const point = flowPoint(i / 80, lane, time);
+      if (i === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    }
+    const alpha = lane % 3 === 0 ? 0.34 : 0.18;
+    ctx.strokeStyle = `rgba(0, 198, 230, ${alpha})`;
+    ctx.lineWidth = lane % 3 === 0 ? 1.15 : 0.7;
+    ctx.stroke();
   }
 
   function draw(time) {
-    const t = time * 0.001;
     ctx.clearRect(0, 0, width, height);
-    const gradient = ctx.createRadialGradient(width * 0.52, height * 0.38, 0, width * 0.52, height * 0.38, width * 0.8);
-    gradient.addColorStop(0, "#202820");
-    gradient.addColorStop(0.45, "#111411");
-    gradient.addColorStop(1, "#090a09");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-
-    particles.forEach((particle, index) => {
-      particle.y += particle.speed;
-      if (particle.y > 1.05) particle.y = -0.05;
-      const x = particle.x * width + pointer.nx * 34 * particle.z;
-      const y = particle.y * height + Math.sin(t + index) * 10;
-      ctx.fillStyle = index % 6 === 0 ? "rgba(223,191,97,0.62)" : "rgba(244,241,232,0.22)";
-      ctx.fillRect(x, y, index % 6 === 0 ? 2 : 1, index % 6 === 0 ? 12 : 5);
-    });
-
+    ctx.globalCompositeOperation = "screen";
     ctx.save();
-    ctx.translate(width * 0.5 + pointer.nx * 56, height * 0.67 + pointer.ny * 26);
-    ctx.rotate(-0.08 + pointer.nx * 0.04);
-    for (let i = 0; i < 18; i += 1) {
-      const y = -82 + i * 11 + Math.sin(t * 1.3 + i) * 7;
-      ctx.strokeStyle = i % 3 === 0 ? "rgba(111,212,203,0.52)" : "rgba(244,241,232,0.16)";
-      ctx.lineWidth = i % 3 === 0 ? 2 : 1;
-      ctx.beginPath();
-      ctx.moveTo(-width * 0.62, y);
-      ctx.bezierCurveTo(-width * 0.2, y - 90, width * 0.12, y + 96, width * 0.68, y - 42);
-      ctx.stroke();
+    ctx.shadowColor = "rgba(0, 216, 255, 0.78)";
+    ctx.shadowBlur = 14;
+    for (let lane = 0; lane < 9; lane += 1) {
+      drawFlowLine(lane, time);
     }
+
+    nodes.forEach((node, index) => {
+      const progress = (node.phase + time * node.speed) % 1;
+      const point = flowPoint(progress, node.lane, time);
+      const pulse = 0.55 + Math.sin(time * 0.004 + index) * 0.32;
+      const radius = node.radius + pulse;
+      const halo = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius * 8);
+      halo.addColorStop(0, "rgba(0, 225, 255, 0.76)");
+      halo.addColorStop(0.28, "rgba(0, 194, 226, 0.26)");
+      halo.addColorStop(1, "rgba(0, 194, 226, 0)");
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, radius * 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = index % 4 === 0 ? "rgba(255,255,255,0.92)" : "rgba(0,230,255,0.92)";
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
     ctx.restore();
 
-    for (let i = 0; i < 9; i += 1) {
-      const x = width * 0.28 + i * 82 + pointer.nx * (i - 4) * 7;
-      const y = height * 0.27 + Math.sin(t + i) * 18 + pointer.ny * 16;
-      drawPanel(x, y, 92, 58, 0.28 + i * 0.018);
-    }
-
-    const glow = ctx.createRadialGradient(pointer.tx, pointer.ty, 0, pointer.tx, pointer.ty, 220);
-    glow.addColorStop(0, pointer.down ? "rgba(138,168,255,0.34)" : "rgba(111,212,203,0.22)");
-    glow.addColorStop(1, "rgba(111,212,203,0)");
+    const glow = ctx.createRadialGradient(pointer.tx, pointer.ty, 0, pointer.tx, pointer.ty, pointer.down ? 320 : 240);
+    glow.addColorStop(0, pointer.down ? "rgba(0, 220, 255, 0.42)" : "rgba(0, 205, 230, 0.24)");
+    glow.addColorStop(1, "rgba(0, 205, 230, 0)");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = "source-over";
 
-    requestAnimationFrame(draw);
+    if (!reducedMotion) requestAnimationFrame(draw);
   }
 
   window.addEventListener("resize", resize);
