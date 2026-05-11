@@ -248,7 +248,7 @@ const languageMeta = {
   ja: { html: "ja", title: "Rufo AI ワークフロースタジオ" },
 };
 
-let activeLanguage = "zh";
+let activeLanguage = "en";
 
 function translate(key) {
   return translations[activeLanguage]?.[key] || translations.zh[key] || key;
@@ -267,6 +267,7 @@ const pointer = {
   ny: 0,
   down: false,
   label: "Studio",
+  frame: 0,
 };
 
 const state = {
@@ -658,17 +659,25 @@ function setupHeroObject() {
 
 function setupCursor() {
   const interactive = "a, button, input, select, textarea, label";
+  const updateObjectInteraction = () => {
+    pointer.frame = 0;
+    if (!dom.heroObjectStage) return;
+    const rect = dom.heroObjectStage.getBoundingClientRect();
+    const localX = ((pointer.tx - rect.left) / Math.max(rect.width, 1)) * 100;
+    const localY = ((pointer.ty - rect.top) / Math.max(rect.height, 1)) * 100;
+    dom.hero?.style.setProperty("--mx", `${pointer.tx}px`);
+    dom.hero?.style.setProperty("--my", `${pointer.ty}px`);
+    dom.heroObjectStage.style.setProperty("--reveal-x", `${Math.max(0, Math.min(100, localX))}%`);
+    dom.heroObjectStage.style.setProperty("--reveal-y", `${Math.max(0, Math.min(100, localY))}%`);
+    dom.heroObjectStage.style.setProperty("--tilt-x", `${pointer.ny * -2.2}deg`);
+    dom.heroObjectStage.style.setProperty("--tilt-y", `${pointer.nx * 3.2}deg`);
+  };
   window.addEventListener("pointermove", (event) => {
     pointer.tx = event.clientX;
     pointer.ty = event.clientY;
     pointer.nx = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.ny = (event.clientY / window.innerHeight) * 2 - 1;
-    dom.hero?.style.setProperty("--mx", `${event.clientX}px`);
-    dom.hero?.style.setProperty("--my", `${event.clientY}px`);
-    dom.heroObjectStage?.style.setProperty("--tilt-x", `${pointer.ny * -1.4}deg`);
-    dom.heroObjectStage?.style.setProperty("--tilt-y", `${pointer.nx * 1.8}deg`);
-    dom.heroObjectStage?.style.setProperty("--shift-x", `${pointer.nx * -34}px`);
-    dom.heroObjectStage?.style.setProperty("--shift-y", `${pointer.ny * -18}px`);
+    if (!pointer.frame) pointer.frame = requestAnimationFrame(updateObjectInteraction);
     const target = event.target.closest(interactive);
     dom.cursor.classList.toggle("is-action", Boolean(target));
     dom.cursor.classList.toggle("is-typing", Boolean(event.target.closest("textarea, input, select")));
@@ -677,10 +686,12 @@ function setupCursor() {
   window.addEventListener("pointerdown", () => {
     pointer.down = true;
     dom.cursor.classList.add("is-down");
+    dom.heroObjectStage?.classList.add("is-dragging");
   });
   window.addEventListener("pointerup", () => {
     pointer.down = false;
     dom.cursor.classList.remove("is-down");
+    dom.heroObjectStage?.classList.remove("is-dragging");
   });
 
   function animateCursor() {
@@ -717,6 +728,7 @@ function setupScrollAnimation() {
 
 function setupCanvas() {
   const canvas = dom.canvas;
+  if (!canvas) return;
   const ctx = canvas.getContext("2d");
   let width = 0;
   let height = 0;
