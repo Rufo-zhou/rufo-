@@ -243,9 +243,9 @@ const translations = {
 };
 
 const languageMeta = {
-  zh: "zh-CN",
-  en: "en",
-  ja: "ja",
+  zh: { html: "zh-CN", title: "Rufo AI 视频工作流工作室" },
+  en: { html: "en", title: "Rufo AI Workflow Studio" },
+  ja: { html: "ja", title: "Rufo AI ワークフロースタジオ" },
 };
 
 let activeLanguage = "zh";
@@ -586,7 +586,11 @@ function setupTabs() {
   $$(".tab-button").forEach((button) => {
     button.addEventListener("click", () => {
       const panel = button.dataset.panel;
-      $$(".tab-button").forEach((item) => item.classList.toggle("active", item === button));
+      $$(".tab-button").forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-selected", String(active));
+      });
       $$(".output-panel").forEach((item) => item.classList.toggle("active", item.id === `panel-${panel}`));
     });
   });
@@ -621,7 +625,8 @@ function setupForm() {
 function applyLanguage(lang, options = {}) {
   const nextLang = translations[lang] ? lang : "zh";
   activeLanguage = nextLang;
-  document.documentElement.lang = languageMeta[nextLang];
+  document.documentElement.lang = languageMeta[nextLang].html;
+  document.title = languageMeta[nextLang].title;
   $$("[data-i18n]").forEach((element) => {
     element.textContent = translate(element.dataset.i18n);
   });
