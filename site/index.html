@@ -12,7 +12,7 @@
       content="Rufo AI Workflow Studio turns scripts into storyboard prompts, character turnarounds, model handoff queues, and production-ready AI video prompt packages."
     />
     <title>Rufo AI Workflow Studio</title>
-    <link rel="stylesheet" href="./styles.css?v=20260509-luxe1" />
+    <link rel="stylesheet" href="./styles.css?v=20260511-finish1" />
   </head>
   <body>
     <div class="cursor-orbit" id="cursor-orbit" aria-hidden="true">
@@ -35,9 +35,9 @@
           <a class="magnetic" href="#docs" data-cursor="Docs" data-i18n="nav.docs">文档</a>
         </nav>
         <div class="language-switch" role="group" aria-label="Language">
-          <button class="lang-button active magnetic" type="button" data-lang="zh" data-cursor="中文">中</button>
-          <button class="lang-button magnetic" type="button" data-lang="en" data-cursor="English">EN</button>
-          <button class="lang-button magnetic" type="button" data-lang="ja" data-cursor="日本語">日</button>
+          <button class="lang-button active magnetic" type="button" data-lang="zh" aria-label="Switch to Chinese" title="中文" data-cursor="中文">中</button>
+          <button class="lang-button magnetic" type="button" data-lang="en" aria-label="Switch to English" title="English" data-cursor="English">EN</button>
+          <button class="lang-button magnetic" type="button" data-lang="ja" aria-label="Switch to Japanese" title="日本語" data-cursor="日本語">日</button>
         </div>
         <a
           class="nav-cta magnetic"
@@ -64,7 +64,7 @@
           <figure class="hero-object-stage" id="hero-object-stage" aria-label="Interactive AI production workbench">
             <img
               class="hero-object"
-              src="./assets/hero-workbench.svg?v=20260509-luxe1"
+              src="./assets/hero-workbench.svg?v=20260511-finish1"
               alt="Cinematic AI video workflow workbench with screenplay pages, storyboard frames, a lens, film strips, and a production tablet"
             />
             <button class="object-hotspot hotspot-script magnetic" type="button" data-cursor="Script" data-hotspot="script">
@@ -197,19 +197,19 @@
                   <strong id="output-count">6 shots</strong>
                 </div>
                 <div class="tab-row" role="tablist" aria-label="Output views">
-                  <button class="tab-button active" type="button" data-panel="shots" role="tab" data-i18n="tab.shots">分镜</button>
-                  <button class="tab-button" type="button" data-panel="characters" role="tab" data-i18n="tab.characters">角色</button>
-                  <button class="tab-button" type="button" data-panel="package" role="tab" data-i18n="tab.package">创作包</button>
+                  <button class="tab-button active" type="button" data-panel="shots" role="tab" aria-selected="true" aria-controls="panel-shots" data-i18n="tab.shots">分镜</button>
+                  <button class="tab-button" type="button" data-panel="characters" role="tab" aria-selected="false" aria-controls="panel-characters" data-i18n="tab.characters">角色</button>
+                  <button class="tab-button" type="button" data-panel="package" role="tab" aria-selected="false" aria-controls="panel-package" data-i18n="tab.package">创作包</button>
                 </div>
               </div>
 
-              <div class="output-panel active" id="panel-shots" role="tabpanel">
+              <div class="output-panel active" id="panel-shots" role="tabpanel" tabindex="0">
                 <div class="shot-stack" id="shot-stack"></div>
               </div>
-              <div class="output-panel" id="panel-characters" role="tabpanel">
+              <div class="output-panel" id="panel-characters" role="tabpanel" tabindex="0">
                 <div class="character-grid" id="character-grid"></div>
               </div>
-              <div class="output-panel" id="panel-package" role="tabpanel">
+              <div class="output-panel" id="panel-package" role="tabpanel" tabindex="0">
                 <pre class="package-output" id="package-output"></pre>
               </div>
             </section>
@@ -299,6 +299,6 @@
         </section>
       </main>
     </div>
-    <script src="./app.js?v=20260509-luxe1" defer></script>
+    <script src="./app.js?v=20260511-finish1" defer></script>
   </body>
 </html>
