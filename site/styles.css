@@ -1550,6 +1550,25 @@ body::before,
     0 18px 42px rgba(42, 38, 26, 0.14);
 }
 
+.topbar .brand,
+.topbar .nav-links a,
+.topbar .nav-cta {
+  color: #f8f4ea;
+}
+
+.topbar .nav-links a:hover {
+  color: #d9f6d0;
+}
+
+.topbar .lang-button {
+  color: rgba(248, 244, 234, 0.72);
+}
+
+.topbar .lang-button.active {
+  color: #17150f;
+  background: #f8f4ea;
+}
+
 .hero {
   min-height: 100svh;
   display: grid;
@@ -1671,9 +1690,9 @@ body::before,
 .moss-interaction .hero-object {
   display: block;
   object-fit: cover;
-  object-position: center;
+  object-position: 52% 66%;
   filter: saturate(1.1) contrast(1.05) brightness(1.02);
-  transform: none;
+  transform: scale(1.24);
   animation: none;
   opacity: 1;
   -webkit-mask-image: radial-gradient(circle 185px at var(--reveal-x) var(--reveal-y), #000 0 58%, rgba(0, 0, 0, 0.78) 66%, transparent 78%);
