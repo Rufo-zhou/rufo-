@@ -70,6 +70,11 @@ textarea {
   font: inherit;
 }
 
+:focus-visible {
+  outline: 2px solid rgba(111, 212, 203, 0.9);
+  outline-offset: 4px;
+}
+
 textarea,
 select,
 input,
@@ -238,6 +243,10 @@ button {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 18px;
   font-style: italic;
+}
+
+.brand span:last-child {
+  white-space: nowrap;
 }
 
 .brand-mark {
@@ -646,6 +655,7 @@ h3 {
   border-radius: var(--soft-radius);
   color: inherit;
   background: transparent;
+  white-space: nowrap;
   transition:
     transform 180ms ease,
     color 180ms ease,
@@ -853,6 +863,10 @@ input[type="range"] {
   color: var(--rust);
   text-transform: none;
   letter-spacing: 0;
+}
+
+.status-line[data-warning] {
+  color: #8f281d;
 }
 
 .output-stage {
@@ -1227,8 +1241,9 @@ input[type="range"] {
     top: 10px;
     left: 10px;
     right: 10px;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 8px;
+    padding: 8px;
   }
 
   .topbar::before,
@@ -1239,6 +1254,13 @@ input[type="range"] {
 
   .brand {
     font-size: 16px;
+    min-width: 0;
+  }
+
+  .brand span:last-child {
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .nav-cta {
@@ -1262,7 +1284,14 @@ input[type="range"] {
   }
 
   h1 {
-    font-size: clamp(48px, 17vw, 78px);
+    max-width: 10.5ch;
+    font-size: clamp(44px, 15vw, 68px);
+    line-height: 0.96;
+  }
+
+  .hero-subtitle {
+    max-width: min(92vw, 560px);
+    font-size: 16px;
   }
 
   .hero {
@@ -1274,10 +1303,10 @@ input[type="range"] {
   }
 
   .hero-object-stage {
-    right: -42vw;
-    bottom: 18vh;
-    width: 118vw;
-    opacity: 0.46;
+    right: -54vw;
+    bottom: 21vh;
+    width: 134vw;
+    opacity: 0.38;
   }
 
   .object-hotspot {
@@ -1303,6 +1332,20 @@ input[type="range"] {
 
   .shot-card {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .nav-cta {
+    display: none;
+  }
+
+  .hero-copy {
+    padding-bottom: 15vh;
   }
 }
 
