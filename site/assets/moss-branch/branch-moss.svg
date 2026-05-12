@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Moss covered branch</title>
+  <desc id="desc">A transparent branch layer with fresh moss growth for mouse reveal interaction.</desc>
+  <defs>
+    <path id="branchPath" d="M-150 625C120 545 245 610 390 686C520 754 615 642 736 542C870 432 1007 470 1168 374C1308 291 1450 286 1750 196"/>
+    <linearGradient id="barkBase" x1="0" x2="1" y1="0.66" y2="0.2">
+      <stop offset="0" stop-color="#241e14"/>
+      <stop offset="0.22" stop-color="#76624a"/>
+      <stop offset="0.48" stop-color="#d4d0bd"/>
+      <stop offset="0.74" stop-color="#6b604f"/>
+      <stop offset="1" stop-color="#efece0"/>
+    </linearGradient>
+    <linearGradient id="moss" x1="0" x2="1">
+      <stop offset="0" stop-color="#334000"/>
+      <stop offset="0.28" stop-color="#6c7e07"/>
+      <stop offset="0.56" stop-color="#9fb019"/>
+      <stop offset="0.82" stop-color="#3f5604"/>
+      <stop offset="1" stop-color="#c7cf44"/>
+    </linearGradient>
+    <filter id="branchRough" x="-12%" y="-28%" width="124%" height="158%">
+      <feTurbulence baseFrequency="0.013 0.06" numOctaves="5" seed="21" type="fractalNoise"/>
+      <feDisplacementMap in="SourceGraphic" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="mossRough" x="-14%" y="-28%" width="128%" height="160%">
+      <feTurbulence baseFrequency="0.055 0.11" numOctaves="5" seed="42" type="fractalNoise"/>
+      <feDisplacementMap in="SourceGraphic" scale="22" xChannelSelector="R" yChannelSelector="B"/>
+    </filter>
+    <clipPath id="branchClip">
+      <use href="#branchPath" fill="none" stroke="#000" stroke-linecap="round" stroke-width="220"/>
+    </clipPath>
+  </defs>
+  <g filter="url(#branchRough)" opacity="0.98">
+    <use href="#branchPath" fill="none" stroke="#17140f" stroke-linecap="round" stroke-width="230" opacity="0.36"/>
+    <use href="#branchPath" fill="none" stroke="url(#barkBase)" stroke-linecap="round" stroke-width="196"/>
+    <use href="#branchPath" fill="none" stroke="#f8f6ea" stroke-linecap="round" stroke-width="110" opacity="0.28"/>
+  </g>
+  <g clip-path="url(#branchClip)" filter="url(#mossRough)">
+    <g fill="none" stroke-linecap="round">
+      <path d="M-120 600C130 548 272 622 388 674C528 736 628 632 742 546C874 447 1000 464 1166 374C1314 294 1450 286 1710 205" stroke="url(#moss)" stroke-width="72" opacity="0.72"/>
+      <path d="M18 668C210 604 344 678 485 690C622 702 684 578 806 520C956 449 1060 480 1205 394C1332 318 1458 306 1690 230" stroke="#415400" stroke-width="62" opacity="0.62"/>
+      <path d="M148 552C304 540 430 648 572 612C690 582 765 478 900 456C1038 434 1112 358 1280 324" stroke="#94a312" stroke-width="48" opacity="0.7"/>
+      <path d="M250 690C420 692 554 704 690 572C790 475 896 494 1036 448C1130 416 1185 358 1328 312" stroke="#c5ce40" stroke-width="22" opacity="0.56"/>
+    </g>
+    <g fill="#6f8108" opacity="0.86">
+      <ellipse cx="172" cy="612" rx="120" ry="40" transform="rotate(10 172 612)"/>
+      <ellipse cx="360" cy="664" rx="122" ry="46" transform="rotate(21 360 664)"/>
+      <ellipse cx="620" cy="612" rx="138" ry="42" transform="rotate(-28 620 612)"/>
+      <ellipse cx="840" cy="488" rx="142" ry="42" transform="rotate(-8 840 488)"/>
+      <ellipse cx="1086" cy="416" rx="126" ry="38" transform="rotate(-14 1086 416)"/>
+      <ellipse cx="1355" cy="304" rx="150" ry="44" transform="rotate(-12 1355 304)"/>
+    </g>
+    <g fill="#c9d744" opacity="0.48">
+      <circle cx="122" cy="586" r="10"/>
+      <circle cx="256" cy="642" r="9"/>
+      <circle cx="430" cy="686" r="11"/>
+      <circle cx="566" cy="650" r="9"/>
+      <circle cx="722" cy="546" r="10"/>
+      <circle cx="888" cy="472" r="9"/>
+      <circle cx="1058" cy="444" r="8"/>
+      <circle cx="1230" cy="360" r="10"/>
+      <circle cx="1452" cy="286" r="9"/>
+    </g>
+  </g>
+</svg>
