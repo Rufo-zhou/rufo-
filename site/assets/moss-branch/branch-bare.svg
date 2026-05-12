@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Bare textured branch</title>
+  <desc id="desc">A transparent organic branch layer with pale bark texture for the interactive moss homepage.</desc>
+  <defs>
+    <path id="branchPath" d="M-150 625C120 545 245 610 390 686C520 754 615 642 736 542C870 432 1007 470 1168 374C1308 291 1450 286 1750 196"/>
+    <linearGradient id="barkBase" x1="0" x2="1" y1="0.65" y2="0.2">
+      <stop offset="0" stop-color="#1c1812"/>
+      <stop offset="0.12" stop-color="#594331"/>
+      <stop offset="0.34" stop-color="#d6d0bd"/>
+      <stop offset="0.58" stop-color="#82745e"/>
+      <stop offset="0.82" stop-color="#f0efe9"/>
+      <stop offset="1" stop-color="#231b14"/>
+    </linearGradient>
+    <linearGradient id="edgeLight" x1="0" x2="1">
+      <stop offset="0" stop-color="#fbfbf7" stop-opacity="0.25"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0.72"/>
+      <stop offset="1" stop-color="#56432f" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="branchRough" x="-12%" y="-28%" width="124%" height="158%">
+      <feTurbulence baseFrequency="0.012 0.058" numOctaves="5" seed="14" type="fractalNoise"/>
+      <feDisplacementMap in="SourceGraphic" scale="17" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="grain" x="-10%" y="-20%" width="120%" height="145%">
+      <feTurbulence baseFrequency="0.72" numOctaves="4" seed="31" type="fractalNoise"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.22"/>
+      </feComponentTransfer>
+    </filter>
+    <clipPath id="branchClip">
+      <use href="#branchPath" fill="none" stroke="#000" stroke-linecap="round" stroke-width="210"/>
+    </clipPath>
+  </defs>
+  <g filter="url(#branchRough)">
+    <use href="#branchPath" fill="none" stroke="#17130f" stroke-linecap="round" stroke-width="236" opacity="0.42"/>
+    <use href="#branchPath" fill="none" stroke="url(#barkBase)" stroke-linecap="round" stroke-width="198"/>
+    <use href="#branchPath" fill="none" stroke="url(#edgeLight)" stroke-linecap="round" stroke-width="128" opacity="0.55"/>
+    <use href="#branchPath" fill="none" stroke="#22190f" stroke-linecap="round" stroke-width="54" opacity="0.24"/>
+  </g>
+  <g clip-path="url(#branchClip)" opacity="0.92">
+    <rect x="-120" y="120" width="1880" height="720" filter="url(#grain)" opacity="0.86"/>
+    <g fill="none" stroke-linecap="round" opacity="0.74">
+      <path d="M-80 584C183 510 315 580 420 640C565 724 635 606 765 510C902 409 1012 444 1162 360C1310 278 1458 282 1680 213" stroke="#312214" stroke-width="12"/>
+      <path d="M-35 660C172 602 298 675 426 710C547 744 643 630 756 556C914 452 1012 500 1200 394C1326 323 1450 312 1668 232" stroke="#f6f3e8" stroke-width="9" opacity="0.72"/>
+      <path d="M62 548C255 526 368 628 514 610C664 590 731 456 889 450C1028 444 1105 365 1240 330" stroke="#6b5a43" stroke-width="16" opacity="0.5"/>
+      <path d="M155 684C314 644 448 745 584 642C746 520 811 526 958 500C1115 474 1210 340 1455 282" stroke="#ffffff" stroke-width="6" opacity="0.42"/>
+      <path d="M-6 598C210 548 362 615 500 676" stroke="#21170f" stroke-width="20" opacity="0.3"/>
+      <path d="M770 492C912 392 1029 460 1168 370C1316 274 1452 286 1700 198" stroke="#20170f" stroke-width="19" opacity="0.28"/>
+    </g>
+    <g fill="#f3f1e8" opacity="0.74">
+      <ellipse cx="170" cy="588" rx="64" ry="16" transform="rotate(12 170 588)"/>
+      <ellipse cx="302" cy="640" rx="74" ry="18" transform="rotate(28 302 640)"/>
+      <ellipse cx="502" cy="665" rx="88" ry="18" transform="rotate(-12 502 665)"/>
+      <ellipse cx="720" cy="530" rx="82" ry="17" transform="rotate(-35 720 530)"/>
+      <ellipse cx="942" cy="452" rx="94" ry="16" transform="rotate(9 942 452)"/>
+      <ellipse cx="1162" cy="376" rx="82" ry="15" transform="rotate(-24 1162 376)"/>
+      <ellipse cx="1394" cy="284" rx="96" ry="17" transform="rotate(-9 1394 284)"/>
+    </g>
+    <g fill="#3d2d1e" opacity="0.5">
+      <ellipse cx="238" cy="650" rx="50" ry="13" transform="rotate(24 238 650)"/>
+      <ellipse cx="606" cy="606" rx="64" ry="15" transform="rotate(-31 606 606)"/>
+      <ellipse cx="824" cy="482" rx="70" ry="15" transform="rotate(-14 824 482)"/>
+      <ellipse cx="1054" cy="414" rx="62" ry="12" transform="rotate(-8 1054 414)"/>
+      <ellipse cx="1286" cy="318" rx="66" ry="14" transform="rotate(-19 1286 318)"/>
+    </g>
+  </g>
+</svg>
