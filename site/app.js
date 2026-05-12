@@ -341,6 +341,11 @@ function stripSceneLabel(value, fallback) {
     .trim() || fallback;
 }
 
+function finishSentence(value) {
+  const text = sanitizeText(value, 700);
+  return /[.!?。！？]$/.test(text) ? text : `${text}.`;
+}
+
 function parseScenes(text, limit) {
   const cleaned = sanitizeText(text);
   const normalized = cleaned.replace(/\s+(?=(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+|int\.|ext\.))/gi, "\n");
@@ -402,7 +407,7 @@ function buildShots(scenes, config) {
         prompt: [
           `${config.model} ${profile.label} video prompt.`,
           `Aspect ratio ${config.aspect}.`,
-          `${action}.`,
+          finishSentence(action),
           `Camera: ${camera}, ${lens}, ${shotType} composition.`,
           `Lighting: ${profile.lighting}.`,
           `Color: ${profile.color}.`,
