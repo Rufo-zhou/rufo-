@@ -329,24 +329,34 @@ function sanitizeText(value, limit = 5000) {
 
 function splitSentences(text) {
   return text
-    .split(/[\n。！？!?]+/)
+    .split(/[\n。！？!?]+|(?<=\.)\s+/)
     .map((line) => sanitizeText(line, 260))
     .filter(Boolean);
 }
 
+function stripSceneLabel(value, fallback) {
+  return sanitizeText(value, 260)
+    .replace(/^(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+)\s*[:：.-]?\s*/i, "")
+    .replace(/[.。,:：\s]+$/g, "")
+    .trim() || fallback;
+}
+
 function parseScenes(text, limit) {
   const cleaned = sanitizeText(text);
-  const blocks = cleaned
+  const normalized = cleaned.replace(/\s+(?=(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+|int\.|ext\.))/gi, "\n");
+  const blocks = normalized
     .split(/\n(?=(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+|int\.|ext\.))/i)
     .map((part) => sanitizeText(part, 900))
     .filter(Boolean);
-  const source = blocks.length > 1 ? blocks : splitSentences(cleaned).map((line, index) => `Scene ${index + 1}: ${line}`);
+  const source = blocks.length > 1 ? blocks : splitSentences(cleaned).map((line, index) => {
+    return /^(?:第\s*\d+\s*场|场景\s*\d+|scene\s*\d+)/i.test(line) ? line : `Scene ${index + 1}: ${line}`;
+  });
   return source.slice(0, limit).map((block, index) => {
     const lines = splitSentences(block);
     const heading = lines[0] || `Scene ${index + 1}`;
-    const action = lines.slice(1).join("。") || heading;
+    const action = lines.slice(1).join("。") || stripSceneLabel(heading, heading);
     const time = /夜|night/i.test(block) ? "night" : /日|day|白天/i.test(block) ? "day" : "story time";
-    const location = heading.replace(/^第\s*\d+\s*场[:：]?\s*/i, "").slice(0, 36) || "story space";
+    const location = stripSceneLabel(heading, "story space").slice(0, 36) || "story space";
     return { index, heading, action, time, location };
   });
 }
