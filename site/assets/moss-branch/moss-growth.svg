@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Dense moss growth</title>
+  <desc id="desc">A transparent dense moss layer used as the brightest reveal layer on the homepage branch.</desc>
+  <defs>
+    <path id="branchPath" d="M-150 625C120 545 245 610 390 686C520 754 615 642 736 542C870 432 1007 470 1168 374C1308 291 1450 286 1750 196"/>
+    <linearGradient id="mossBright" x1="0" x2="1">
+      <stop offset="0" stop-color="#4b6500"/>
+      <stop offset="0.28" stop-color="#94a90f"/>
+      <stop offset="0.58" stop-color="#d0dc3f"/>
+      <stop offset="0.82" stop-color="#5a7600"/>
+      <stop offset="1" stop-color="#e5ec76"/>
+    </linearGradient>
+    <filter id="growthRough" x="-18%" y="-34%" width="136%" height="176%">
+      <feTurbulence baseFrequency="0.067 0.14" numOctaves="5" seed="63" type="fractalNoise"/>
+      <feDisplacementMap in="SourceGraphic" scale="28" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="softShadow" x="-18%" y="-34%" width="136%" height="176%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#1a2200" flood-opacity="0.22"/>
+    </filter>
+    <clipPath id="branchClip">
+      <use href="#branchPath" fill="none" stroke="#000" stroke-linecap="round" stroke-width="230"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#branchClip)" filter="url(#softShadow)">
+    <g filter="url(#growthRough)" fill="none" stroke-linecap="round">
+      <path d="M-95 640C140 584 288 652 408 704C548 764 650 632 760 544C884 445 1016 482 1166 384C1308 292 1440 296 1704 214" stroke="url(#mossBright)" stroke-width="92" opacity="0.78"/>
+      <path d="M116 692C296 628 428 722 590 666C700 628 746 508 900 488C1052 468 1166 386 1330 326C1446 284 1548 262 1696 224" stroke="#567300" stroke-width="72" opacity="0.72"/>
+      <path d="M-40 580C168 552 300 610 454 652C596 690 665 574 780 520C910 460 990 478 1126 420C1230 376 1290 310 1436 292" stroke="#bfce2c" stroke-width="46" opacity="0.64"/>
+      <path d="M222 702C388 722 540 700 672 572C778 468 860 510 1012 466C1124 434 1192 356 1334 320" stroke="#e2ea69" stroke-width="23" opacity="0.62"/>
+    </g>
+    <g fill="#6f8304" opacity="0.88">
+      <ellipse cx="126" cy="632" rx="122" ry="44" transform="rotate(8 126 632)"/>
+      <ellipse cx="332" cy="692" rx="134" ry="52" transform="rotate(20 332 692)"/>
+      <ellipse cx="540" cy="688" rx="92" ry="36" transform="rotate(-10 540 688)"/>
+      <ellipse cx="694" cy="570" rx="138" ry="50" transform="rotate(-31 694 570)"/>
+      <ellipse cx="910" cy="500" rx="142" ry="46" transform="rotate(2 910 500)"/>
+      <ellipse cx="1162" cy="394" rx="120" ry="42" transform="rotate(-20 1162 394)"/>
+      <ellipse cx="1426" cy="286" rx="146" ry="50" transform="rotate(-10 1426 286)"/>
+    </g>
+    <g fill="#dfe965" opacity="0.56">
+      <circle cx="88" cy="600" r="13"/>
+      <circle cx="190" cy="652" r="11"/>
+      <circle cx="314" cy="706" r="14"/>
+      <circle cx="460" cy="694" r="10"/>
+      <circle cx="626" cy="622" r="12"/>
+      <circle cx="758" cy="536" r="14"/>
+      <circle cx="906" cy="496" r="11"/>
+      <circle cx="1040" cy="470" r="9"/>
+      <circle cx="1184" cy="388" r="12"/>
+      <circle cx="1338" cy="324" r="10"/>
+      <circle cx="1502" cy="260" r="12"/>
+    </g>
+    <g fill="#ffffff" opacity="0.3">
+      <ellipse cx="586" cy="606" rx="84" ry="19" transform="rotate(-28 586 606)"/>
+      <ellipse cx="850" cy="456" rx="96" ry="17" transform="rotate(-4 850 456)"/>
+      <ellipse cx="1228" cy="344" rx="88" ry="16" transform="rotate(-18 1228 344)"/>
+    </g>
+  </g>
+</svg>
