@@ -665,12 +665,14 @@ function setupCursor() {
     const rect = dom.heroObjectStage.getBoundingClientRect();
     const localX = ((pointer.tx - rect.left) / Math.max(rect.width, 1)) * 100;
     const localY = ((pointer.ty - rect.top) / Math.max(rect.height, 1)) * 100;
+    const inside = localX >= 0 && localX <= 100 && localY >= 0 && localY <= 100;
     dom.hero?.style.setProperty("--mx", `${pointer.tx}px`);
     dom.hero?.style.setProperty("--my", `${pointer.ty}px`);
     dom.heroObjectStage.style.setProperty("--reveal-x", `${Math.max(0, Math.min(100, localX))}%`);
     dom.heroObjectStage.style.setProperty("--reveal-y", `${Math.max(0, Math.min(100, localY))}%`);
     dom.heroObjectStage.style.setProperty("--tilt-x", `${pointer.ny * -2.2}deg`);
     dom.heroObjectStage.style.setProperty("--tilt-y", `${pointer.nx * 3.2}deg`);
+    dom.heroObjectStage.classList.toggle("is-active", inside);
   };
   window.addEventListener("pointermove", (event) => {
     pointer.tx = event.clientX;
