@@ -19,8 +19,9 @@ test -f outputs/ci/poster_prompt_package.md
 python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --title ci-video --creative-style cinematic --out outputs/video-ci
 test -f outputs/video-ci/video_workflow_result.json
 test -f outputs/video-ci/model_prompt_queue.md
-python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model sora --creative-style documentary --aspect-ratio 9:16 --out outputs/video-high-ci
-test -f outputs/video-high-ci/production_brief.md
+python3 script_to_video_prompt_workflow.py --script examples/sample_script.txt --quality-mode high --target-model seedance --creative-style cinematic --aspect-ratio 16:9 --out outputs/video-seedance-ci
+test -f outputs/video-seedance-ci/production_brief.md
+test -f outputs/video-seedance-ci/model_prompt_queue.md
 ```
 
 ## CI

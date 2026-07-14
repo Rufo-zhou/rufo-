@@ -6,7 +6,7 @@
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-black)
 
-一个可直接运行的多智能体创作提示词工具集。当前包含两个工作流：叙事海报提示词生成，以及剧本转 AI 视频分镜提示词生成。它可以帮助创作者把“想法、肖像、剧本”整理成可交给图像模型或视频模型继续生产的结构化提示词。
+一个可直接运行的多智能体创作提示词工具集。当前包含两个工作流：叙事海报提示词生成，以及剧本转 AI 视频分镜提示词生成。视频工作流已加入 Seedance 2.0 目标模型配置，可把剧本整理成更适合导演式提示词、参考角色和连续片段交付的结构化提示词包。
 
 ## 这个工具用来做什么
 
@@ -52,7 +52,7 @@ python3 -m http.server 4173 --directory site
   - Quality Assurance：提示词质量检查
 - 新增剧本转视频工作流：
   - 自动识别剧本场次、地点、时间和角色
-  - 生成可用于 Sora、Runway、Kling、Pika、Luma 等 AI 视频模型的分镜提示词
+  - 生成可用于 Seedance 2.0、Sora、Runway、Kling、Pika、Luma 等 AI 视频模型的分镜提示词
   - 生成角色三视图提示词和人物一致性规则
   - 输出视频提示词总包、分镜 Markdown 和 QA 报告
 - 可选 OpenAI API 模式；不配置 API key 时使用确定性 fallback 输出
@@ -93,7 +93,7 @@ outputs/
 python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --title "雨夜排练" \
-  --target-model sora \
+  --target-model seedance \
   --quality-mode high \
   --creative-style cinematic \
   --aspect-ratio 9:16 \

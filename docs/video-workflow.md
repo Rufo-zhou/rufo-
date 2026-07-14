@@ -1,6 +1,6 @@
 # Script-to-Video Prompt Workflow
 
-这个工作流用于把剧本文本转换成 AI 视频模型可用的提示词资产。它不会直接生成视频，而是输出分镜、角色三视图和一致性规则，方便继续交给 Sora、Runway、Kling、Pika、Luma、ComfyUI 视频流等工具。
+这个工作流用于把剧本文本转换成 AI 视频模型可用的提示词资产。它不会直接生成视频，而是输出分镜、角色三视图和一致性规则，方便继续交给 Seedance 2.0、Sora、Runway、Kling、Pika、Luma、ComfyUI 视频流等工具。
 
 ## 适合做什么
 
@@ -17,7 +17,7 @@
 python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --title "雨夜排练" \
-  --target-model sora \
+  --target-model seedance \
   --quality-mode high \
   --creative-style cinematic \
   --aspect-ratio 9:16 \
@@ -144,7 +144,7 @@ outputs/video/
 | `--title` | 否 | 项目标题，默认使用文件名 |
 | `--out` | 否 | 输出目录，默认 `./outputs/video` |
 | `--language` | 否 | 输出语言提示，默认 `zh-CN` |
-| `--target-model` | 否 | 目标视频模型，支持 `general`、`sora`、`runway`、`kling`、`pika`、`luma` |
+| `--target-model` | 否 | 目标视频模型，支持 `general`、`seedance`、`sora`、`runway`、`kling`、`pika`、`luma` |
 | `--quality-mode` | 否 | 输出质量模式，支持 `fast`、`balanced`、`high` |
 | `--creative-style` | 否 | 视频风格，支持 `cinematic`、`realistic`、`anime`、`documentary`、`commercial`、`fantasy` |
 | `--aspect-ratio` | 否 | 视频画幅，例如 `16:9`、`9:16`、`1:1` |
@@ -158,6 +158,7 @@ outputs/video/
 | 目标模型 | 适合场景 |
 | --- | --- |
 | `general` | 通用视频模型，默认兼容 |
+| `seedance` | 强调导演意图、参考角色分工、首尾帧连续性和 textless 交付 |
 | `sora` | 强调长时连续性、世界状态和自然运动 |
 | `runway` | 强调简洁、视觉优先、镜头和灯光明确 |
 | `kling` | 强调动作、环境互动和节奏 |

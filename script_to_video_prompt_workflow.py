@@ -83,7 +83,7 @@ STOP_CHARACTER_NAMES = {
 }
 
 NARRATOR_NAMES = {"旁白", "narrator", "voiceover", "voice over", "v.o.", "vo"}
-SUPPORTED_TARGET_MODELS = {"general", "sora", "runway", "kling", "pika", "luma"}
+SUPPORTED_TARGET_MODELS = {"general", "seedance", "sora", "runway", "kling", "pika", "luma"}
 SUPPORTED_QUALITY_MODES = {"fast", "balanced", "high"}
 SUPPORTED_CREATIVE_STYLES = {"cinematic", "realistic", "anime", "documentary", "commercial", "fantasy"}
 
@@ -92,6 +92,11 @@ MODEL_PROFILES = {
         "label": "General AI video model",
         "prompt_hint": "balanced prompt structure for broad AI video model compatibility",
         "motion_bias": "clear, physically plausible motion with stable continuity",
+    },
+    "seedance": {
+        "label": "Seedance 2.0",
+        "prompt_hint": "direct the scene by intent, keep reference roles explicit, avoid subtitle and logo generation",
+        "motion_bias": "clear action endpoint, stable subject identity, readable camera move, and continuity-ready final frame",
     },
     "sora": {
         "label": "Sora",
@@ -1135,7 +1140,7 @@ class StoryboardPromptAgent(BaseAgent):
             "quality_mode": project.quality_mode,
             "aspect_ratio": project.aspect_ratio,
             "creative_style": project.creative_style,
-            "target_models": ["Sora", "Runway", "Kling", "Pika", "Luma", "可兼容其他 AI 视频模型"],
+            "target_models": ["Seedance 2.0", "Sora", "Runway", "Kling", "Pika", "Luma", "可兼容其他 AI 视频模型"],
             "storyboard": storyboard,
         }
         return self.result(output)

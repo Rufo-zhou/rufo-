@@ -11,6 +11,7 @@
 | 海报更像商业主视觉 | `--style-preset commercial --model-target midjourney` |
 | 快速看方向 | `--quality-mode fast --target-model general` |
 | 默认生产 | `--quality-mode balanced --target-model runway` |
+| Seedance 2.0 导演式交付 | `--quality-mode high --target-model seedance` |
 | 高质量分镜包 | `--quality-mode high --target-model sora` |
 | 竖屏短视频 | `--aspect-ratio 9:16 --quality-mode balanced` |
 | 动作感更强 | `--target-model kling --quality-mode high` |
@@ -45,6 +46,7 @@
 
 ### 视频模型
 
+- `seedance`：强调导演意图、参考角色分工、动作终点、首尾帧连续性和 textless 交付。
 - `sora`：强调连续世界状态、自然运动和长镜头一致性。
 - `runway`：提示词更简洁，镜头、主体、灯光需要更明确。
 - `kling`：适合动作、肢体、环境互动和强节奏。

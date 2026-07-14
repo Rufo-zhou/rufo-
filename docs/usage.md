@@ -62,7 +62,7 @@ outputs/
 python3 script_to_video_prompt_workflow.py \
   --script examples/sample_script.txt \
   --title "雨夜排练" \
-  --target-model sora \
+  --target-model seedance \
   --quality-mode high \
   --creative-style cinematic \
   --aspect-ratio 9:16 \
@@ -95,7 +95,7 @@ outputs/video/
 | `--script` | 是 | 剧本文本路径 |
 | `--title` | 否 | 项目标题，默认使用文件名 |
 | `--out` | 否 | 输出目录，默认 `./outputs/video` |
-| `--target-model` | 否 | 目标视频模型，支持 `general`、`sora`、`runway`、`kling`、`pika`、`luma` |
+| `--target-model` | 否 | 目标视频模型，支持 `general`、`seedance`、`sora`、`runway`、`kling`、`pika`、`luma` |
 | `--quality-mode` | 否 | 输出质量模式，支持 `fast`、`balanced`、`high` |
 | `--creative-style` | 否 | 视频风格，支持 `cinematic`、`realistic`、`anime`、`documentary`、`commercial`、`fantasy` |
 | `--aspect-ratio` | 否 | 视频画幅，例如 `16:9`、`9:16`、`1:1` |
@@ -124,7 +124,7 @@ python3 multi_agent_poster_system.py \
 
 ### 这个工具会直接生成图片吗？
 
-当前版本不会直接生成图片或视频。它会生成结构化分析结果和最终提示词，方便你继续放入 SDXL、Midjourney、DALL-E、ComfyUI、Sora、Runway、Kling、Pika、Luma 等工具。
+当前版本不会直接生成图片或视频。它会生成结构化分析结果和最终提示词，方便你继续放入 SDXL、Midjourney、DALL-E、ComfyUI、Seedance 2.0、Sora、Runway、Kling、Pika、Luma 等工具。
 
 ### 为什么要提供真实图片文件？
 

@@ -29,9 +29,10 @@
           <span>Rufo Corp.</span>
         </a>
         <nav class="nav-links" aria-label="Website sections">
-          <a class="magnetic" href="#studio" data-cursor="Pricing">Pricing</a>
-          <a class="magnetic" href="#workflow" data-cursor="About">About moss</a>
-          <a class="magnetic" href="#gallery" data-cursor="Login">Login</a>
+          <a class="magnetic" href="#studio" data-cursor="Studio" data-i18n="nav.studio">Studio</a>
+          <a class="magnetic" href="#workflow" data-cursor="Flow" data-i18n="nav.flow">Flow</a>
+          <a class="magnetic" href="#gallery" data-cursor="Systems" data-i18n="nav.systems">Systems</a>
+          <a class="magnetic" href="#docs" data-cursor="Docs" data-i18n="nav.docs">Docs</a>
         </nav>
         <div class="language-switch" role="group" aria-label="Language" hidden>
           <button class="lang-button magnetic" type="button" data-lang="zh" aria-label="Switch to Chinese" title="中文" data-cursor="中文">中</button>
@@ -133,6 +134,7 @@ The camera slowly pushes in as she looks toward the audience.</textarea>
                 <label>
                   <span data-i18n="control.model">模型</span>
                   <select id="model-target">
+                    <option>Seedance 2.0</option>
                     <option>Sora</option>
                     <option>Runway</option>
                     <option>Kling</option>
@@ -264,6 +266,11 @@ The camera slowly pushes in as she looks toward the audience.</textarea>
               <h3 data-i18n="gallery.video.title">剧本到 AI 视频分镜</h3>
               <span data-i18n="gallery.video.body">镜头队列 / 人物三视图 / CSV / 模型交付包</span>
             </article>
+            <article class="feature-tile seedance reveal-block">
+              <p data-i18n="gallery.seedance.eyebrow">Seedance Skill OS</p>
+              <h3 data-i18n="gallery.seedance.title">导演意图到 Seedance 2.0</h3>
+              <span data-i18n="gallery.seedance.body">参考角色 / 首尾帧 / 连续片段 / Codex skill</span>
+            </article>
             <article class="feature-tile qa reveal-block">
               <p data-i18n="gallery.qa.eyebrow">安全系统</p>
               <h3 data-i18n="gallery.qa.title">生成前风险检查</h3>
@@ -297,6 +304,11 @@ The camera slowly pushes in as she looks toward the audience.</textarea>
               <span>04</span>
               <strong>CI Status</strong>
               <small data-i18n="docs.ci">自动测试和安全检查</small>
+            </a>
+            <a class="doc-link magnetic" href="https://github.com/Emily2040/seedance-2.0" target="_blank" rel="noreferrer" data-cursor="Seedance">
+              <span>05</span>
+              <strong>Seedance Skill OS</strong>
+              <small data-i18n="docs.seedance">Seedance 2.0 导演式提示词工作流</small>
             </a>
           </div>
         </section>

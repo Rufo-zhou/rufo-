@@ -74,13 +74,16 @@ const translations = {
     "workflow.step4.title": "模型队列",
     "workflow.step4.body": "形成 Markdown 创作包和 CSV 队列，方便继续进入视频生成工具。",
     "gallery.eyebrow": "创意系统",
-    "gallery.title": "一个仓库，两个生产系统",
+    "gallery.title": "脚本、海报与 Seedance 交付系统",
     "gallery.poster.eyebrow": "海报工作流",
     "gallery.poster.title": "肖像到叙事海报",
     "gallery.poster.body": "风格预设 / 画幅 / 模型目标 / 多版本提示词",
     "gallery.video.eyebrow": "视频工作流",
     "gallery.video.title": "剧本到 AI 视频分镜",
     "gallery.video.body": "镜头队列 / 人物三视图 / CSV / 模型交付包",
+    "gallery.seedance.eyebrow": "Seedance Skill OS",
+    "gallery.seedance.title": "导演意图到 Seedance 2.0",
+    "gallery.seedance.body": "参考角色 / 首尾帧 / 连续片段 / Codex skill",
     "gallery.qa.eyebrow": "安全系统",
     "gallery.qa.title": "生成前风险检查",
     "gallery.qa.body": "本地生成 / 无数据上传 / 输入清理 / 提示词完整度",
@@ -90,6 +93,7 @@ const translations = {
     "docs.poster": "人物海报提示词生产",
     "docs.quality": "质量模式和模型选择",
     "docs.ci": "自动测试和安全检查",
+    "docs.seedance": "Seedance 2.0 导演式提示词工作流",
     "status.ready": "已准备好进行新的制作。",
     "status.empty": "请先粘贴剧本或场景梗概。",
     "status.secret": "检测到疑似密钥内容，请删除后再生成。",
@@ -143,13 +147,16 @@ const translations = {
     "workflow.step4.title": "Model queue",
     "workflow.step4.body": "Export Markdown packages and CSV queues for the next AI video tool.",
     "gallery.eyebrow": "Creative systems",
-    "gallery.title": "One repository, two production systems",
+    "gallery.title": "Script, poster, and Seedance delivery systems",
     "gallery.poster.eyebrow": "Poster workflow",
     "gallery.poster.title": "Portrait to narrative poster",
     "gallery.poster.body": "Style presets / aspect ratio / model target / multi-version prompts",
     "gallery.video.eyebrow": "Video workflow",
     "gallery.video.title": "Script to AI storyboard",
     "gallery.video.body": "Shot queue / character turnarounds / CSV / model handoff",
+    "gallery.seedance.eyebrow": "Seedance Skill OS",
+    "gallery.seedance.title": "Directed intent to Seedance 2.0",
+    "gallery.seedance.body": "Reference roles / first-last frame / continuations / Codex skill",
     "gallery.qa.eyebrow": "Safety system",
     "gallery.qa.title": "Pre-generation risk checks",
     "gallery.qa.body": "Local generation / no upload / input cleanup / prompt completeness",
@@ -159,6 +166,7 @@ const translations = {
     "docs.poster": "Character poster prompt production",
     "docs.quality": "Quality modes and model selection",
     "docs.ci": "Automated tests and safety checks",
+    "docs.seedance": "Director-style Seedance 2.0 prompt workflow",
     "status.ready": "Ready for a new production pass.",
     "status.empty": "Paste a script or scene outline before generating.",
     "status.secret": "Sensitive token-like text detected. Remove secrets before generating.",
@@ -212,13 +220,16 @@ const translations = {
     "workflow.step4.title": "モデルキュー",
     "workflow.step4.body": "Markdown パッケージと CSV キューにまとめ、次の動画生成ツールへ渡します。",
     "gallery.eyebrow": "制作システム",
-    "gallery.title": "ひとつのリポジトリ、ふたつの制作系統",
+    "gallery.title": "脚本、ポスター、Seedance 納品システム",
     "gallery.poster.eyebrow": "ポスターワークフロー",
     "gallery.poster.title": "ポートレートから物語ポスターへ",
     "gallery.poster.body": "スタイル / 比率 / モデル指定 / 複数案プロンプト",
     "gallery.video.eyebrow": "動画ワークフロー",
     "gallery.video.title": "脚本から AI 絵コンテへ",
     "gallery.video.body": "ショットキュー / 人物三面図 / CSV / モデル納品",
+    "gallery.seedance.eyebrow": "Seedance Skill OS",
+    "gallery.seedance.title": "演出意図から Seedance 2.0 へ",
+    "gallery.seedance.body": "参照ロール / 始終フレーム / 継続クリップ / Codex skill",
     "gallery.qa.eyebrow": "安全システム",
     "gallery.qa.title": "生成前リスクチェック",
     "gallery.qa.body": "ローカル生成 / アップロードなし / 入力整理 / 完整性チェック",
@@ -228,6 +239,7 @@ const translations = {
     "docs.poster": "人物ポスタープロンプト制作",
     "docs.quality": "品質モードとモデル選択",
     "docs.ci": "自動テストと安全チェック",
+    "docs.seedance": "Seedance 2.0 向け演出型プロンプトワークフロー",
     "status.ready": "新しい制作を開始できます。",
     "status.empty": "先に脚本または場面メモを入力してください。",
     "status.secret": "キーのような文字列を検出しました。削除してから生成してください。",
@@ -316,6 +328,39 @@ const styleProfiles = {
   },
 };
 
+const videoModelProfiles = {
+  "Seedance 2.0": {
+    promptLead: "Seedance 2.0 director-style video prompt.",
+    note: "Name one scene intention, keep reference roles explicit, preserve the final frame for continuation.",
+    continuity: "Use locked identity, readable action endpoint, stable props, textless output, no watermark or logo.",
+  },
+  Sora: {
+    promptLead: "Sora coherent-world video prompt.",
+    note: "Emphasize temporal continuity, natural physics, and a stable world state.",
+    continuity: "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+  },
+  Runway: {
+    promptLead: "Runway visual-first video prompt.",
+    note: "Keep the instruction concise with explicit subject, camera, lighting, and action.",
+    continuity: "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+  },
+  Kling: {
+    promptLead: "Kling action-forward video prompt.",
+    note: "Prioritize readable body movement, environment interaction, and shot rhythm.",
+    continuity: "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+  },
+  Pika: {
+    promptLead: "Pika compact creative video prompt.",
+    note: "Use a strong visual hook and one simple motion instruction.",
+    continuity: "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+  },
+  Luma: {
+    promptLead: "Luma cinematic-realism video prompt.",
+    note: "Emphasize spatial depth, lens path, and lighting continuity.",
+    continuity: "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+  },
+};
+
 const lenses = ["24mm wide", "35mm story lens", "50mm natural perspective", "85mm emotional close-up"];
 const shotTypes = ["establishing", "medium", "close-up", "insert", "over-shoulder", "wide reveal"];
 const secretPattern = /(sk-[a-z0-9_-]{12,}|sk-proj-[a-z0-9_-]{12,}|api[_-]?key|token|password|secret)/i;
@@ -391,6 +436,7 @@ function extractCharacters(text) {
 
 function buildShots(scenes, config) {
   const profile = styleProfiles[config.style] || styleProfiles.cinematic;
+  const modelProfile = videoModelProfiles[config.model] || videoModelProfiles.Sora;
   const perScene = config.depth === "high" ? 3 : config.depth === "fast" ? 1 : 2;
   const shots = [];
   scenes.forEach((scene) => {
@@ -405,13 +451,14 @@ function buildShots(scenes, config) {
         title: `${scene.location} / ${shotType}`,
         scene: scene.heading,
         prompt: [
-          `${config.model} ${profile.label} video prompt.`,
+          modelProfile.promptLead,
           `Aspect ratio ${config.aspect}.`,
           finishSentence(action),
           `Camera: ${camera}, ${lens}, ${shotType} composition.`,
           `Lighting: ${profile.lighting}.`,
           `Color: ${profile.color}.`,
-          "Keep character identity consistent, preserve spatial continuity, avoid text artifacts and extra limbs.",
+          `Model note: ${modelProfile.note}`,
+          modelProfile.continuity,
         ].join(" "),
         meta: [config.model, profile.label, config.aspect, camera, lens],
       });
@@ -421,6 +468,7 @@ function buildShots(scenes, config) {
 }
 
 function buildPackage({ text, scenes, characters, shots, config }) {
+  const modelProfile = videoModelProfiles[config.model] || videoModelProfiles.Sora;
   const characterBlock = characters
     .map((item) => [`### ${item.name}`, `- Front: ${item.front}`, `- Side: ${item.side}`, `- Back: ${item.back}`].join("\n"))
     .join("\n\n");
@@ -448,6 +496,10 @@ function buildPackage({ text, scenes, characters, shots, config }) {
     "",
     "## Production Intent",
     "Create a coherent cinematic sequence with clear scene continuity, controlled camera language, and reusable character references.",
+    "",
+    "## Target Model Guidance",
+    modelProfile.note,
+    modelProfile.continuity,
     "",
     "## Character Three-View Prompts",
     characterBlock,

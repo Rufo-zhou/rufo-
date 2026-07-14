@@ -1,7 +1,7 @@
 # Rufo AI Workflow Studio Website
 
 This static website presents the project as an interactive AI creative workflow studio.
-It includes a local-only prompt workbench that can generate storyboard prompts, character three-view prompts, a Markdown handoff package, and a CSV shot queue directly in the browser.
+It includes a local-only prompt workbench that can generate Seedance 2.0-ready storyboard prompts, character three-view prompts, a Markdown handoff package, and a CSV shot queue directly in the browser.
 The homepage uses a local interactive workbench visual, cursor-driven depth, and a Chinese / English / Japanese language switcher so visitors can understand and use the tool quickly.
 
 ## Local Preview

@@ -58,7 +58,7 @@ ProjectInput
 - 海报工作流会根据主题自动推导场景、符号、情绪和色彩，而不是绑定单一示例主题。
 - 海报工作流支持风格预设、目标图像模型、质量模式和多变体提示词。
 - 视频工作流支持 `fast`、`balanced`、`high` 三档质量模式，方便在速度和质量之间取舍。
-- 视频工作流支持 Sora、Runway、Kling、Pika、Luma 等目标模型提示词偏好。
+- 视频工作流支持 Seedance 2.0、Sora、Runway、Kling、Pika、Luma 等目标模型提示词偏好。
 - 视频工作流支持创作风格配置，并输出 Markdown / CSV 两种模型排队格式。
 
 ## 后续扩展方向

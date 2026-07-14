@@ -1156,7 +1156,7 @@ input[type="range"] {
 }
 
 .gallery-grid {
-  grid-template-columns: 1.1fr 1.2fr 0.9fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .feature-tile {
@@ -1192,6 +1192,10 @@ input[type="range"] {
   background: #cbd8d0;
 }
 
+.feature-tile.seedance {
+  background: #d8dfd5;
+}
+
 .feature-tile.qa {
   background: #dfd2c4;
 }
@@ -1224,7 +1228,7 @@ input[type="range"] {
 }
 
 .docs-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .doc-link {
